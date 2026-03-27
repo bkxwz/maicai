@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卖菜记账 - 界面预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .phone {
+            width: 390px;
+            min-height: 844px;
+            background: #f5f5f5;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .status-bar {
+            height: 44px;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .app-bar {
+            height: 56px;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .date-header {
+            background: #4CAF50;
+            padding: 16px;
+            text-align: center;
+            color: white;
+        }
+        
+        .date-header .date {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        
+        .date-header .total-badge {
+            display: inline-block;
+            background: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            color: #4CAF50;
+            font-size: 24px;
+            font-weight: 900;
+        }
+        
+        .vegetable-list {
+            padding: 8px 0;
+        }
+        
+        .vegetable-card {
+            margin: 8px 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .vegetable-card:hover {
+            border-color: #4CAF50;
+            background: #f0fff0;
+        }
+        
+        .vegetable-card.selected {
+            border-color: #4CAF50;
+            background: #f0fff0;
+            box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+        }
+        
+        .vegetable-card .emoji {
+            font-size: 36px;
+        }
+        
+        .vegetable-card .info {
+            flex: 1;
+        }
+        
+        .vegetable-card .name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .vegetable-card .hint {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .vegetable-card .amount {
+            background: #f5f5f5;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 900;
+            color: #333;
+        }
+        
+        .vegetable-card.selected .amount {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .input-display {
+            padding: 12px 16px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .input-display .label {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .input-display .value-box {
+            background: #f0fff0;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-size: 28px;
+            font-weight: 900;
+            color: #4CAF50;
+        }
+        
+        .numpad {
+            padding: 8px;
+            background: #f5f5f5;
+        }
+        
+        .numpad-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .num-key {
+            flex: 1;
+            height: 64px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 900;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border: 2px solid #e0e0e0;
+            transition: all 0.1s;
+        }
+        
+        .num-key:hover {
+            background: #f0f0f0;
+        }
+        
+        .num-key:active {
+            transform: scale(0.95);
+        }
+        
+        .num-key.action {
+            background: #FF9800;
+            color: white;
+            border-color: #F57C00;
+        }
+        
+        .num-key.confirm {
+            background: #4CAF50;
+            color: white;
+            border-color: #388E3C;
+        }
+        
+        .history-btn {
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .history-btn a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        
+        .page-title {
+            text-align: center;
+            padding: 40px 20px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .page-title h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .page-title p {
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            border: 1px solid #ddd;
+        }
+        
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; flex-direction: column; gap: 40px; align-items: center;">
+        
+        <div class="page-title">
+            <h1>📱 卖菜记账 App 界面预览</h1>
+            <p>点击下方手机查看交互效果</p>
+            <div class="tabs">
+                <div class="tab active" onclick="showScreen('home')">主界面</div>
+                <div class="tab" onclick="showScreen('detail')">菜品详情</div>
+                <div class="tab" onclick="showScreen('history')">历史记录</div>
+            </div>
+        </div>
+
+        <!-- 主界面 -->
+        <div class="phone" id="screen-home">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📡 🔋</span>
+            </div>
+            <div class="app-bar">卖菜记账</div>
+            
+            <div class="date-header">
+                <div class="date">2026年3月27日</div>
+                <div class="total-badge">今日合计：265 元</div>
+            </div>
+            
+            <div class="vegetable-list">
+                <div class="vegetable-card selected" onclick="selectCard(this)">
+                    <span class="emoji">🫘</span>
+                    <div class="info">
+                        <div class="name">豆角</div>
+                        <div class="hint">点击选择 · 长按查看明细</div>
+                    </div>
+                    <div class="amount">120 元</div>
+                </div>
+                
+                <div class="vegetable-card" onclick="selectCard(this)">
+                    <span class="emoji">🥬</span>
+                    <div class="info">
+                        <div class="name">菜心</div>
+                        <div class="hint">点击选择 · 长按查看明细</div>
+                    </div>
+                    <div class="amount">85 元</div>
+                </div>
+                
+                <div class="vegetable-card" onclick="selectCard(this)">
+                    <span class="emoji">🥦</span>
+                    <div class="info">
+                        <div class="name">白菜</div>
+                        <div class="hint">点击选择 · 长按查看明细</div>
+                    </div>
+                    <div class="amount">60 元</div>
+                </div>
+            </div>
+            
+            <div class="input-display">
+                <span class="label">输入 豆角 金额：</span>
+                <span class="value-box" id="display">0 元</span>
+            </div>
+            
+            <div class="numpad">
+                <div class="numpad-row">
+                    <div class="num-key" onclick="pressKey('1')">1</div>
+                    <div class="num-key" onclick="pressKey('2')">2</div>
+                    <div class="num-key" onclick="pressKey('3')">3</div>
+                </div>
+                <div class="numpad-row">
+                    <div class="num-key" onclick="pressKey('4')">4</div>
+                    <div class="num-key" onclick="pressKey('5')">5</div>
+                    <div class="num-key" onclick="pressKey('6')">6</div>
+                </div>
+                <div class="numpad-row">
+                    <div class="num-key" onclick="pressKey('7')">7</div>
+                    <div class="num-key" onclick="pressKey('8')">8</div>
+                    <div class="num-key" onclick="pressKey('9')">9</div>
+                </div>
+                <div class="numpad-row">
+                    <div class="num-key action" onclick="clearInput()">清除</div>
+                    <div class="num-key" onclick="pressKey('0')">0</div>
+                    <div class="num-key confirm" onclick="confirmInput()">确认</div>
+                </div>
+            </div>
+            
+            <div class="history-btn">
+                <a href="#" onclick="showScreen('history'); return false;">📋 查看历史记录</a>
+            </div>
+        </div>
+
+        <!-- 菜品详情页 -->
+        <div class="phone" id="screen-detail" style="display: none;">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📡 🔋</span>
+            </div>
+            <div class="app-bar">🫘 豆角</div>
+            
+            <div class="date-header">
+                <div class="date">本月销售总额</div>
+                <div class="total-badge">1,285 元</div>
+                <div style="color: rgba(255,255,255,0.8); margin-top: 8px; font-size: 14px;">共 12 天有记录</div>
+            </div>
+            
+            <div style="padding: 12px; background: #f5f5f5; display: flex; gap: 12px;">
+                <div style="flex: 1; padding: 12px; background: #4CAF50; border-radius: 8px; text-align: center; color: white; font-weight: bold;">本月</div>
+                <div style="flex: 1; padding: 12px; background: white; border-radius: 8px; text-align: center; color: #4CAF50; border: 1px solid #4CAF50; font-weight: bold;">自定义</div>
+            </div>
+            
+            <div style="padding: 16px; overflow-y: auto; flex: 1;">
+                <div style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <span style="font-size: 18px; font-weight: 500;">03-27</span>
+                    <span style="font-size: 22px; font-weight: 900; color: #4CAF50;">120 元</span>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <span style="font-size: 18px; font-weight: 500;">03-26</span>
+                    <span style="font-size: 22px; font-weight: 900; color: #4CAF50;">95 元</span>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <span style="font-size: 18px; font-weight: 500;">03-25</span>
+                    <span style="font-size: 22px; font-weight: 900; color: #4CAF50;">80 元</span>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <span style="font-size: 18px; font-weight: 500;">03-24</span>
+                    <span style="font-size: 22px; font-weight: 900; color: #4CAF50;">110 元</span>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <span style="font-size: 18px; font-weight: 500;">03-23</span>
+                    <span style="font-size: 22px; font-weight: 900; color: #4CAF50;">75 元</span>
+                </div>
+            </div>
+            
+            <div style="padding: 12px; text-align: center;">
+                <a href="#" onclick="showScreen('home'); return false;" style="color: #4CAF50; text-decoration: none;">← 返回主界面</a>
+            </div>
+        </div>
+
+        <!-- 历史记录页 -->
+        <div class="phone" id="screen-history" style="display: none;">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📡 🔋</span>
+            </div>
+            <div class="app-bar">历史记录</div>
+            
+            <div class="date-header">
+                <div class="date">累计总收入</div>
+                <div class="total-badge" style="font-size: 40px;">675 元</div>
+                <div style="color: rgba(255,255,255,0.8); margin-top: 8px; font-size: 14px;">共 3 天有记录</div>
+            </div>
+            
+            <div style="padding: 16px; overflow-y: auto; flex: 1;">
+                <!-- 第一天 -->
+                <div style="background: white; border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="background: #f0fff0; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #4CAF50;">📅</span>
+                            <span style="font-size: 16px; font-weight: bold; color: #4CAF50;">2026年3月27日</span>
+                        </div>
+                        <span style="font-size: 16px; font-weight: 900; color: #4CAF50;">小计：265 元</span>
+                    </div>
+                    <div style="padding: 12px; display: flex; gap: 8px;">
+                        <div style="flex: 1; background: #f0fff0; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #666;">🫘 豆角</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #4CAF50;">120</div>
+                        </div>
+                        <div style="flex: 1; background: #f0fff0; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #666;">🥬 菜心</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #4CAF50;">85</div>
+                        </div>
+                        <div style="flex: 1; background: #f0fff0; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #666;">🥦 白菜</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #4CAF50;">60</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第二天 -->
+                <div style="background: white; border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="background: #f0fff0; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #4CAF50;">📅</span>
+                            <span style="font-size: 16px; font-weight: bold; color: #4CAF50;">2026年3月26日</span>
+                        </div>
+                        <span style="font-size: 16px; font-weight: 900; color: #4CAF50;">小计：205 元</span>
+                    </div>
+                    <div style="padding: 12px; display: flex; gap: 8px;">
+                        <div style="flex: 1; background: #f0fff0; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #666;">🫘 豆角</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #4CAF50;">95</div>
+                        </div>
+                        <div style="flex: 1; background: #f0fff0; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #666;">🥬 菜心</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #4CAF50;">110</div>
+                        </div>
+                        <div style="flex: 1; background: #f5f5f5; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #999;">🥦 白菜</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #999;">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第三天 -->
+                <div style="background: white; border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="background: #f0fff0; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #4CAF50;">📅</span>
+                            <span style="font-size: 16px; font-weight: bold; color: #4CAF50;">2026年3月25日</span>
+                        </div>
+                        <span style="font-size: 16px; font-weight: 900; color: #4CAF50;">小计：205 元</span>
+                    </div>
+                    <div style="padding: 12px; display: flex; gap: 8px;">
+                        <div style="flex: 1; background: #f0fff0; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #666;">🫘 豆角</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #4CAF50;">80</div>
+                        </div>
+                        <div style="flex: 1; background: #f0fff0; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #666;">🥬 菜心</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #4CAF50;">75</div>
+                        </div>
+                        <div style="flex: 1; background: #f0fff0; padding: 8px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: #666;">🥦 白菜</div>
+                            <div style="font-size: 20px; font-weight: 900; color: #4CAF50;">50</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding: 12px; text-align: center;">
+                <a href="#" onclick="showScreen('home'); return false;" style="color: #4CAF50; text-decoration: none;">← 返回主界面</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentValue = '0';
+        
+        function showScreen(name) {
+            document.querySelectorAll('.phone').forEach(p => p.style.display = 'none');
+            document.getElementById('screen-' + name).style.display = 'block';
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function selectCard(card) {
+            document.querySelectorAll('.vegetable-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            const name = card.querySelector('.name').textContent;
+            document.querySelector('.input-display .label').textContent = '输入 ' + name + ' 金额：';
+            currentValue = '0';
+            document.getElementById('display').textContent = '0 元';
+        }
+        
+        function pressKey(key) {
+            if (currentValue === '0') {
+                currentValue = key;
+            } else if (currentValue.length < 6) {
+                currentValue += key;
+            }
+            document.getElementById('display').textContent = currentValue + ' 元';
+        }
+        
+        function clearInput() {
+            currentValue = '0';
+            document.getElementById('display').textContent = '0 元';
+        }
+        
+        function confirmInput() {
+            if (currentValue !== '0') {
+                alert('已记录：' + currentValue + ' 元');
+                clearInput();
+            }
+        }
+    </script>
+</body>
+</html>
