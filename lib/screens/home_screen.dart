@@ -47,8 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final now = DateTime.now();
     final weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     final weekday = weekdays[now.weekday % 7];
-    final lunar = LunarHelper.getLunarDate(now);
-    return '${now.month}月${now.day}日 $weekday $lunar';
+    return '${now.month}月${now.day}日 $weekday';
   }
 
   double _getVegetableAmount(String name) {
@@ -254,31 +253,46 @@ class _HomeScreenState extends State<HomeScreen> {
             // 日期和合计 - 压缩高度
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               color: Colors.green,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  Text(
-                    _formattedDate,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formattedDate,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '合计 ${total.toStringAsFixed(1)} 元',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerLeft,
                     child: Text(
-                      '合计 ${total.toStringAsFixed(1)} 元',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.green,
+                      LunarHelper.getLunarDate(DateTime.now()),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.green.shade100,
                       ),
                     ),
                   ),
