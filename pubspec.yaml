@@ -1,13 +1,15 @@
 name: li_cal
 description: 卖菜记账应用
 publish_to: 'none'
-version: 1.0.0+7
+version: 1.0.0+8
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   shared_preferences: ^2.2.0
   intl: ^0.18.0

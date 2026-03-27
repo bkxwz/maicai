@@ -121,29 +121,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _saveAmount(String vegetable, double amount) async {
-    if (_todayRecord == null) return;
-
-    DailyRecord newRecord;
-    switch (vegetable) {
-      case '豆角':
-        newRecord = _todayRecord!.copyWith(doubang: _todayRecord!.doubang + amount);
-        break;
-      case '菜心':
-        newRecord = _todayRecord!.copyWith(caixin: _todayRecord!.caixin + amount);
-        break;
-      case '白菜':
-        newRecord = _todayRecord!.copyWith(baicai: _todayRecord!.baicai + amount);
-        break;
-      default:
-        return;
-    }
-
-    await StorageService.saveRecord(newRecord);
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    
+    // 创建新的交易记录
+    final transaction = Transaction(
+      date: today,
+      vegetable: vegetable,
+      amount: amount,
+    );
+    
+    await StorageService.addTransaction(transaction);
+    
+    // 重新加载今日记录
+    final record = await StorageService.getRecordByDate(today);
     
     SoundService.playSuccess();
     
     setState(() {
-      _todayRecord = newRecord;
+      _todayRecord = record ?? DailyRecord(date: today);
       _inputValue = '0';
       _selectedVegetable = '';
     });

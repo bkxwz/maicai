@@ -16,7 +16,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
   bool _isThisMonth = true;
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now();
-  List<DailyRecord> _records = [];
+  List<Transaction> _transactions = [];
   double _total = 0;
   bool _isLoading = true;
 
@@ -49,15 +49,19 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     
-    final records = await StorageService.getRecordsByDateRange(_startDate, _endDate);
+    final transactions = await StorageService.getTransactionsByVegetableAndRange(
+      widget.vegetable,
+      _startDate,
+      _endDate,
+    );
+    
     double total = 0;
-    for (var record in records) {
-      total += record.getVegetableAmount(widget.vegetable);
+    for (var t in transactions) {
+      total += t.amount;
     }
     
     setState(() {
-      _records = records.where((r) => r.getVegetableAmount(widget.vegetable) > 0).toList()
-        ..sort((a, b) => b.date.compareTo(a.date));
+      _transactions = transactions;
       _total = total;
       _isLoading = false;
     });
@@ -91,19 +95,22 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
     _loadData();
   }
 
-  void _selectCustomRange() async {
-    // 使用中文日期选择器
+  Future<void> _selectCustomRange() async {
     final picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
       initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
       builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(primary: Colors.green),
+        return Localizations.override(
+          context: context,
+          locale: const Locale('zh', 'CN'),
+          child: Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: const ColorScheme.light(primary: Colors.green),
+            ),
+            child: child!,
           ),
-          child: child!,
         );
       },
     );
@@ -114,6 +121,43 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
         _startDate = picked.start;
         _endDate = picked.end;
       });
+      _loadData();
+    }
+  }
+
+  Future<void> _deleteTransaction(Transaction transaction) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        content: Text(
+          '确定要删除这笔记录吗？\n\n${transaction.vegetable}：${transaction.amount.toStringAsFixed(1)} 元',
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消', style: TextStyle(fontSize: 18)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('删除', style: TextStyle(fontSize: 18)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await StorageService.deleteTransaction(transaction.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('已删除', style: TextStyle(fontSize: 16)),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
       _loadData();
     }
   }
@@ -132,6 +176,18 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
     final start = '${_startDate.month}月${_startDate.day}日';
     final end = '${_endDate.month}月${_endDate.day}日';
     return '$start - $end';
+  }
+
+  /// 按日期分组交易记录
+  Map<String, List<Transaction>> _groupByDate() {
+    final Map<String, List<Transaction>> grouped = {};
+    for (var t in _transactions) {
+      if (!grouped.containsKey(t.date)) {
+        grouped[t.date] = [];
+      }
+      grouped[t.date]!.add(t);
+    }
+    return grouped;
   }
 
   @override
@@ -155,10 +211,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                     children: [
                       Text(
                         _isThisMonth ? '本月销售总额' : '期间销售总额',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white70,
-                        ),
+                        style: const TextStyle(fontSize: 18, color: Colors.white70),
                       ),
                       const SizedBox(height: 8),
                       Container(
@@ -178,11 +231,8 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '共 ${_records.length} 天有记录',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                        ),
+                        '共 ${_transactions.length} 笔记录',
+                        style: const TextStyle(fontSize: 14, color: Colors.white70),
                       ),
                     ],
                   ),
@@ -194,24 +244,16 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                   color: Colors.grey.shade100,
                   child: Column(
                     children: [
-                      // 快捷选择按钮
                       Row(
                         children: [
-                          Expanded(
-                            child: _buildQuickButton('本月', _isThisMonth, _switchToThisMonth),
-                          ),
+                          Expanded(child: _buildQuickButton('本月', _isThisMonth, _switchToThisMonth)),
                           const SizedBox(width: 8),
-                          Expanded(
-                            child: _buildQuickButton('近一周', false, _selectLastWeek),
-                          ),
+                          Expanded(child: _buildQuickButton('近一周', false, _selectLastWeek)),
                           const SizedBox(width: 8),
-                          Expanded(
-                            child: _buildQuickButton('上月', false, _selectLastMonth),
-                          ),
+                          Expanded(child: _buildQuickButton('上月', false, _selectLastMonth)),
                         ],
                       ),
                       const SizedBox(height: 10),
-                      // 自定义范围按钮
                       GestureDetector(
                         onTap: _selectCustomRange,
                         child: Container(
@@ -238,91 +280,130 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                   ),
                 ),
                 
-                // 记录列表
+                // 交易记录列表（按日期分组，显示每笔）
                 Expanded(
-                  child: _records.isEmpty
+                  child: _transactions.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.inbox, size: 64, color: Colors.grey.shade400),
                               const SizedBox(height: 16),
-                              Text(
-                                '该时段暂无记录',
-                                style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                              ),
+                              Text('该时段暂无记录', style: TextStyle(fontSize: 18, color: Colors.grey.shade600)),
                             ],
                           ),
                         )
-                      : ListView.builder(
+                      : ListView(
                           padding: const EdgeInsets.all(16),
-                          itemCount: _records.length,
-                          itemBuilder: (context, index) {
-                            final record = _records[index];
-                            final amount = record.getVegetableAmount(widget.vegetable);
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.green.withOpacity(0.1),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _formatDate(record.date),
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          _getLunarDate(record.date),
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      '${amount.toStringAsFixed(1)} 元',
-                                      style: const TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                          children: _buildTransactionList(),
                         ),
                 ),
               ],
             ),
     );
+  }
+
+  List<Widget> _buildTransactionList() {
+    final grouped = _groupByDate();
+    final widgets = <Widget>[];
+    
+    for (var entry in grouped.entries) {
+      final date = entry.key;
+      final transactions = entry.value;
+      final dayTotal = transactions.fold<double>(0, (sum, t) => sum + t.amount);
+      
+      // 日期标题
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Row(
+            children: [
+              Text(
+                _formatDate(date),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _getLunarDate(date),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              ),
+              const Spacer(),
+              Text(
+                '小计 ${dayTotal.toStringAsFixed(1)} 元',
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.green),
+              ),
+            ],
+          ),
+        ),
+      );
+      
+      // 该天的所有交易
+      for (var t in transactions) {
+        widgets.add(
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.green.withOpacity(0.08),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // 时间
+                Container(
+                  width: 50,
+                  child: Text(
+                    _getTimeFromTimestamp(t.timestamp),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  ),
+                ),
+                // 金额
+                Expanded(
+                  child: Text(
+                    '${t.amount.toStringAsFixed(1)} 元',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                // 删除按钮
+                GestureDetector(
+                  onTap: () => _deleteTransaction(t),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: Colors.red.shade400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+    
+    return widgets;
+  }
+
+  String _getTimeFromTimestamp(int timestamp) {
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   Widget _buildQuickButton(String label, bool isActive, VoidCallback onTap) {
