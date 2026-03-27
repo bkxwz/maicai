@@ -168,7 +168,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
-                          '${_total.toStringAsFixed(0)} 元',
+                          '${_total.toStringAsFixed(1)} 元',
                           style: const TextStyle(
                             fontSize: 38,
                             fontWeight: FontWeight.w900,
@@ -306,7 +306,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(
-                                      '${amount.toStringAsFixed(0)} 元',
+                                      '${amount.toStringAsFixed(1)} 元',
                                       style: const TextStyle(
                                         fontSize: 22,
                                         fontWeight: FontWeight.w900,

@@ -78,7 +78,7 @@ class VegetableCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '${amount.toStringAsFixed(0)} 元',
+                '${amount.toStringAsFixed(1)} 元',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,

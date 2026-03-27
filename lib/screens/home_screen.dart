@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     final weekday = weekdays[now.weekday % 7];
     final lunar = LunarHelper.getLunarDate(now);
-    return '${now.year}年${now.month}月${now.day}日 $weekday\n$lunar';
+    return '${now.month}月${now.day}日 $weekday $lunar';
   }
 
   double _getVegetableAmount(String name) {
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       // 处理小数点
       if (key == '.') {
-        if (_inputValue.contains('.')) return; // 已有小数点
+        if (_inputValue.contains('.')) return;
         if (_inputValue == '0') {
           _inputValue = '0.';
         } else {
@@ -74,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
       if (_inputValue == '0') {
         _inputValue = key;
       } else if (_inputValue.contains('.')) {
-        // 小数点后最多2位
         final parts = _inputValue.split('.');
         if (parts[1].length < 2 && _inputValue.length < 8) {
           _inputValue += key;
@@ -94,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onConfirm() {
     if (_selectedVegetable.isEmpty) {
+      SoundService.playError();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('请先选择菜品', style: TextStyle(fontSize: 18)),
@@ -106,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final amount = double.tryParse(_inputValue) ?? 0;
     if (amount <= 0) {
+      SoundService.playError();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('请输入金额', style: TextStyle(fontSize: 18)),
@@ -151,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('✓ $vegetable +${amount.toStringAsFixed(0)} 元', style: const TextStyle(fontSize: 20)),
+          content: Text('✓ $vegetable +${amount.toStringAsFixed(1)} 元', style: const TextStyle(fontSize: 20)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 1),
         ),
@@ -178,7 +179,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _exportData() async {
     try {
-      // 显示选择对话框
       final choice = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
@@ -248,206 +248,188 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // 日期和合计
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: Colors.green,
-            child: Column(
-              children: [
-                Text(
-                  _formattedDate,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Text(
-                    '今日合计：${total.toStringAsFixed(0)} 元',
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 日期和合计 - 压缩高度
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: Colors.green,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _formattedDate,
                     style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.green,
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // 三个菜品并排显示 - 添加X按钮进入详情
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: _vegetables.asMap().entries.map((entry) {
-                final v = entry.value;
-                final name = v['name']!;
-                final emoji = v['emoji']!;
-                final amount = _getVegetableAmount(name);
-                final isSelected = _selectedVegetable == name;
-                
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: GestureDetector(
-                      onTap: () => _selectVegetable(name),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.green.shade50 : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? Colors.green : Colors.grey.shade300,
-                            width: isSelected ? 3 : 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isSelected 
-                                  ? Colors.green.withOpacity(0.3) 
-                                  : Colors.black.withOpacity(0.08),
-                              blurRadius: isSelected ? 10 : 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Column(
-                              children: [
-                                Text(
-                                  emoji,
-                                  style: const TextStyle(fontSize: 36),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  name,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected ? Colors.green.shade700 : Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: isSelected ? Colors.green : Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    '${amount.toStringAsFixed(0)} 元',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w900,
-                                      color: isSelected ? Colors.white : Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // X按钮进入详情
-                            Positioned(
-                              top: -8,
-                              right: -8,
-                              child: GestureDetector(
-                                onTap: () => _navigateToDetail(name),
-                                child: Container(
-                                  width: 28,
-                                  height: 28,
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.shade400,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    Icons.bar_chart,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '合计 ${total.toStringAsFixed(1)} 元',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.green,
                       ),
                     ),
                   ),
-                );
-              }).toList(),
+                ],
+              ),
             ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          // 输入金额显示
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: Colors.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _selectedVegetable.isEmpty ? '请选择菜品' : '输入 $_selectedVegetable：',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: _selectedVegetable.isEmpty ? Colors.grey : Colors.black87,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.green, width: 2),
-                  ),
-                  child: Text(
-                    '$_inputValue 元',
-                    style: const TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.green,
+            
+            // 三个菜品并排显示
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: _vegetables.asMap().entries.map((entry) {
+                  final v = entry.value;
+                  final name = v['name']!;
+                  final emoji = v['emoji']!;
+                  final amount = _getVegetableAmount(name);
+                  final isSelected = _selectedVegetable == name;
+                  
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: GestureDetector(
+                        onTap: () => _selectVegetable(name),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected ? Colors.green.shade50 : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected ? Colors.green : Colors.grey.shade300,
+                              width: isSelected ? 3 : 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isSelected 
+                                    ? Colors.green.withOpacity(0.3) 
+                                    : Colors.black.withOpacity(0.08),
+                                blurRadius: isSelected ? 8 : 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(emoji, style: const TextStyle(fontSize: 32)),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    name,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: isSelected ? Colors.green.shade700 : Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.green : Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${amount.toStringAsFixed(1)}元',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w900,
+                                        color: isSelected ? Colors.white : Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // 详情按钮
+                              Positioned(
+                                top: -6,
+                                right: -6,
+                                child: GestureDetector(
+                                  onTap: () => _navigateToDetail(name),
+                                  child: Container(
+                                    width: 22,
+                                    height: 22,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.bar_chart, size: 12, color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            
+            // 输入金额显示
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _selectedVegetable.isEmpty ? '请选择菜品' : '输入 $_selectedVegetable：',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: _selectedVegetable.isEmpty ? Colors.grey : Colors.black87,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green, width: 2),
+                    ),
+                    child: Text(
+                      '$_inputValue 元',
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // 数字键盘
-          Expanded(
-            child: NumPad(
-              onKeyTap: _onKeyTap,
-              onClear: _onClear,
-              onConfirm: _onConfirm,
-              currentValue: _inputValue,
+            
+            // 数字键盘 - 使用Flexible确保不会溢出
+            Flexible(
+              child: NumPad(
+                onKeyTap: _onKeyTap,
+                onClear: _onClear,
+                onConfirm: _onConfirm,
+                currentValue: _inputValue,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
