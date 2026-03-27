@@ -209,16 +209,24 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text('卖菜记账', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
-        centerTitle: true,
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          onPressed: _exportData,
+          icon: const Icon(Icons.share, size: 28),
+          tooltip: '导出数据',
+        ),
         actions: [
           IconButton(
-            onPressed: _exportData,
-            icon: const Icon(Icons.share, size: 26),
-            tooltip: '导出数据',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+              );
+            },
+            icon: const Icon(Icons.history, size: 28),
+            tooltip: '历史记录',
           ),
         ],
       ),
@@ -419,22 +427,6 @@ class _HomeScreenState extends State<HomeScreen> {
               onClear: _onClear,
               onConfirm: _onConfirm,
               currentValue: _inputValue,
-            ),
-          ),
-          
-          // 历史记录按钮
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: TextButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HistoryScreen()),
-                );
-              },
-              icon: const Icon(Icons.history, size: 24),
-              label: const Text('查看历史记录', style: TextStyle(fontSize: 18)),
-              style: TextButton.styleFrom(foregroundColor: Colors.green),
             ),
           ),
         ],
