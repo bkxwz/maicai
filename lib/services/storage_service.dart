@@ -79,6 +79,33 @@ class StorageService {
     await prefs.setStringList(_transactionsKey, jsonList);
   }
 
+  /// 从JSON导入交易记录
+  static Future<int> importFromJson(List<dynamic> jsonList) async {
+    final prefs = await SharedPreferences.getInstance();
+    final transactions = await getAllTransactions();
+    int count = 0;
+    
+    for (var item in jsonList) {
+      try {
+        final transaction = Transaction(
+          date: item['date'] as String,
+          vegetable: item['vegetable'] as String,
+          amount: (item['amount'] as num).toDouble(),
+          timestamp: item['timestamp'] as int? ?? DateTime.now().millisecondsSinceEpoch + count,
+        );
+        transactions.add(transaction);
+        count++;
+      } catch (e) {
+        // 跳过格式错误的记录
+        continue;
+      }
+    }
+    
+    final jsonListStr = transactions.map((t) => jsonEncode(t.toJson())).toList();
+    await prefs.setStringList(_transactionsKey, jsonListStr);
+    return count;
+  }
+
   // ==================== 日汇总记录（兼容旧版） ====================
 
   static Future<List<DailyRecord>> getAllRecords() async {

@@ -8,6 +8,7 @@ import '../widgets/numpad.dart';
 import '../utils/lunar_helper.dart';
 import 'vegetable_detail.dart';
 import 'history_screen.dart';
+import 'import_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -95,18 +96,21 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_selectedVegetable.isEmpty) {
       SoundService.playError();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Row(
             children: [
               Icon(Icons.warning, color: Colors.white),
               SizedBox(width: 8),
-              Text('请先选择菜品再输入金额！', style: TextStyle(fontSize: 18)),
+              Expanded(
+                child: Text('请先选择菜品再输入金额！', style: TextStyle(fontSize: 16)),
+              ),
             ],
           ),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 2),
         ),
       );
+      // 不清零，保持原数字
       return;
     }
 
@@ -115,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
       SoundService.playError();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('请输入金额', style: TextStyle(fontSize: 18)),
+          content: Text('请输入金额', style: TextStyle(fontSize: 16)),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 1),
         ),
@@ -137,8 +141,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     
     await StorageService.addTransaction(transaction);
-    
-    // 重新加载数据
     await _loadTodayRecord();
     
     SoundService.playSuccess();
@@ -151,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('✓ $vegetable +${amount.toStringAsFixed(1)} 元', style: const TextStyle(fontSize: 20)),
+          content: Text('✓ $vegetable +${amount.toStringAsFixed(1)} 元', style: const TextStyle(fontSize: 18)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 1),
         ),
@@ -163,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SoundService.playKeyClick();
     setState(() {
       _selectedVegetable = name;
-      _inputValue = '0';
+      // 不清零数字，保持原值
     });
   }
 
@@ -174,18 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) => VegetableDetailScreen(vegetable: vegetable),
       ),
     );
-    // 返回时刷新数据
     _loadTodayRecord();
-  }
-
-  Future<void> _handleImport() async {
-    // TODO: 实现导入功能
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('导入功能开发中...', style: TextStyle(fontSize: 16)),
-        backgroundColor: Colors.blue,
-      ),
-    );
   }
 
   @override
@@ -203,14 +194,15 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 顶部导航栏（自定义）
+            // 顶部栏 - 图标+文字横向排列
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               color: Colors.green,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildTopButton(Icons.share, '分享', () async {
+                  _buildTopBarItem(Icons.share, '分享', () async {
                     try {
                       await ExportService.shareSummary();
                     } catch (e) {
@@ -221,8 +213,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                     }
                   }),
-                  _buildTopButton(Icons.download, '导入', _handleImport),
-                  _buildTopButton(Icons.history, '历史', () {
+                  _buildTopBarItem(Icons.download, '导入', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ImportScreen()),
+                    );
+                  }),
+                  _buildTopBarItem(Icons.history, '历史', () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const HistoryScreen()),
@@ -235,112 +232,85 @@ class _HomeScreenState extends State<HomeScreen> {
             // 日期和今日合计
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               color: Colors.green,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     _formattedDate,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: const TextStyle(fontSize: 15, color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       '今日合计 ${total.toStringAsFixed(1)} 元',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.green,
-                      ),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.green),
                     ),
                   ),
                 ],
               ),
             ),
             
-            // 农历显示
+            // 农历
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(left: 12, bottom: 6),
               color: Colors.green,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    LunarHelper.getLunarDate(DateTime.now()),
-                    style: TextStyle(fontSize: 13, color: Colors.green.shade100),
-                  ),
-                ),
+              child: Text(
+                LunarHelper.getLunarDate(DateTime.now()),
+                style: TextStyle(fontSize: 12, color: Colors.green.shade100),
               ),
             ),
             
-            // 5个菜品 - 两行显示
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Column(
-                children: [
-                  // 第一行：3个菜品
-                  Row(
-                    children: _vegetables.take(3).map((v) => _buildVegetableCard(v)).toList(),
-                  ),
-                  const SizedBox(height: 8),
-                  // 第二行：2个菜品居中
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _vegetables.skip(3).map((v) => _buildVegetableCard(v)).toList(),
-                  ),
-                ],
+            // 5个菜品 - 一行紧凑显示
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              color: Colors.grey.shade100,
+              child: Row(
+                children: _vegetables.map((v) => _buildCompactVegetableCard(v)).toList(),
               ),
             ),
             
             // 输入金额显示
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               color: Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    _selectedVegetable.isEmpty ? '请选择菜品' : '输入 $_selectedVegetable：',
+                    _selectedVegetable.isEmpty ? '请选择菜品' : '$_selectedVegetable：',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: _selectedVegetable.isEmpty ? Colors.grey : Colors.black87,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: Colors.green, width: 2),
                     ),
                     child: Text(
                       '$_inputValue 元',
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.green,
-                      ),
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.green),
                     ),
                   ),
                 ],
               ),
             ),
             
-            // 数字键盘
+            // 数字键盘 - 完整显示
             Flexible(
+              fit: FlexFit.tight,
               child: NumPad(
                 onKeyTap: _onKeyTap,
                 onClear: _onClear,
@@ -354,114 +324,102 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTopButton(IconData icon, String label, VoidCallback onTap) {
+  Widget _buildTopBarItem(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Colors.white, size: 28),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 22),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildVegetableCard(Map<String, String> v) {
+  Widget _buildCompactVegetableCard(Map<String, String> v) {
     final name = v['name']!;
     final emoji = v['emoji']!;
     final amount = _getVegetableAmount(name);
     final isSelected = _selectedVegetable == name;
     
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: GestureDetector(
-          onTap: () => _selectVegetable(name),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-            decoration: BoxDecoration(
-              color: isSelected ? Colors.green.shade50 : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected ? Colors.green : Colors.grey.shade300,
-                width: isSelected ? 3 : 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: isSelected 
-                      ? Colors.green.withOpacity(0.3) 
-                      : Colors.black.withOpacity(0.08),
-                  blurRadius: isSelected ? 8 : 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+      child: GestureDetector(
+        onTap: () => _selectVegetable(name),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.green.shade50 : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? Colors.green : Colors.grey.shade300,
+              width: isSelected ? 2 : 1,
             ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(emoji, style: const TextStyle(fontSize: 28)),
-                    const SizedBox(height: 2),
-                    Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.green.shade700 : Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.green : Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        '${amount.toStringAsFixed(1)}元',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w900,
-                          color: isSelected ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                // 详情按钮
-                Positioned(
-                  top: -6,
-                  right: -6,
-                  child: GestureDetector(
-                    onTap: () => _navigateToDetail(name),
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.bar_chart, size: 10, color: Colors.white),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(emoji, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(height: 2),
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? Colors.green.shade700 : Colors.black87,
                     ),
                   ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.green : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '${amount.toStringAsFixed(1)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: isSelected ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              // 详情按钮
+              Positioned(
+                top: -4,
+                right: -4,
+                child: GestureDetector(
+                  onTap: () => _navigateToDetail(name),
+                  child: Container(
+                    width: 18,
+                    height: 18,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.bar_chart, size: 10, color: Colors.white),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

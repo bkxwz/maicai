@@ -24,16 +24,42 @@ class ExportService {
       );
     }
 
-    // 创建临时文件
+    // 创建CSV文件
     final directory = await getTemporaryDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final file = File('${directory.path}/卖菜记账_$timestamp.csv');
-    await file.writeAsString(buffer.toString(), encoding: utf8);
+    final csvFile = File('${directory.path}/卖菜记账_$timestamp.csv');
+    await csvFile.writeAsString(buffer.toString(), encoding: utf8);
+    
+    // 同时导出JSON（可导入）
+    final transactions = await StorageService.getAllTransactions();
+    final jsonStr = jsonEncode(transactions.map((t) => t.toJson()).toList());
+    final jsonFile = File('${directory.path}/卖菜记账_$timestamp.json');
+    await jsonFile.writeAsString(jsonStr, encoding: utf8);
 
     // 分享文件
     await Share.shareXFiles(
-      [XFile(file.path, mimeType: 'text/csv')],
-      text: '卖菜记账数据导出',
+      [XFile(csvFile.path, mimeType: 'text/csv'), XFile(jsonFile.path, mimeType: 'application/json')],
+      text: '卖菜记账数据导出（CSV+JSON）',
+    );
+  }
+
+  /// 导出JSON（可导入格式）
+  static Future<void> exportJson() async {
+    final transactions = await StorageService.getAllTransactions();
+    
+    if (transactions.isEmpty) {
+      throw Exception('暂无记录可导出');
+    }
+
+    final jsonStr = jsonEncode(transactions.map((t) => t.toJson()).toList());
+    final directory = await getTemporaryDirectory();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final file = File('${directory.path}/卖菜记账_$timestamp.json');
+    await file.writeAsString(jsonStr, encoding: utf8);
+
+    await Share.shareXFiles(
+      [XFile(file.path, mimeType: 'application/json')],
+      text: '卖菜记账数据（可导入）',
     );
   }
 
