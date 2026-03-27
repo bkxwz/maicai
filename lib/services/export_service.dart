@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -87,6 +88,3 @@ class ExportService {
     await Share.share(summary, subject: '卖菜记账统计');
   }
 }
-
-// 需要的import
-import 'dart:convert';
