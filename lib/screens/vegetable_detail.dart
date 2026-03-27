@@ -28,6 +28,10 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
         return '🥬';
       case '白菜':
         return '🥦';
+      case '瓜软':
+        return '🥒';
+      case '白瓜':
+        return '🍈';
       default:
         return '🥬';
     }

@@ -91,11 +91,15 @@ class StorageService {
       double doubang = existing?.doubang ?? 0;
       double caixin = existing?.caixin ?? 0;
       double baicai = existing?.baicai ?? 0;
+      double guaruan = existing?.guaruan ?? 0;
+      double baigua = existing?.baigua ?? 0;
       
       switch (t.vegetable) {
         case '豆角': doubang += t.amount; break;
         case '菜心': caixin += t.amount; break;
         case '白菜': baicai += t.amount; break;
+        case '瓜软': guaruan += t.amount; break;
+        case '白瓜': baigua += t.amount; break;
       }
       
       dailyMap[t.date] = DailyRecord(
@@ -103,6 +107,8 @@ class StorageService {
         doubang: doubang,
         caixin: caixin,
         baicai: baicai,
+        guaruan: guaruan,
+        baigua: baigua,
       );
     }
     
@@ -114,16 +120,25 @@ class StorageService {
     final transactions = await getTransactionsByDate(date);
     if (transactions.isEmpty) return null;
     
-    double doubang = 0, caixin = 0, baicai = 0;
+    double doubang = 0, caixin = 0, baicai = 0, guaruan = 0, baigua = 0;
     for (var t in transactions) {
       switch (t.vegetable) {
         case '豆角': doubang += t.amount; break;
         case '菜心': caixin += t.amount; break;
         case '白菜': baicai += t.amount; break;
+        case '瓜软': guaruan += t.amount; break;
+        case '白瓜': baigua += t.amount; break;
       }
     }
     
-    return DailyRecord(date: date, doubang: doubang, caixin: caixin, baicai: baicai);
+    return DailyRecord(
+      date: date, 
+      doubang: doubang, 
+      caixin: caixin, 
+      baicai: baicai,
+      guaruan: guaruan,
+      baigua: baigua,
+    );
   }
 
   static Future<void> saveRecord(DailyRecord record) {

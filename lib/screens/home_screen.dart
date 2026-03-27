@@ -22,10 +22,13 @@ class _HomeScreenState extends State<HomeScreen> {
   DailyRecord? _todayRecord;
   bool _isLoading = true;
 
+  // 5个菜品
   final List<Map<String, String>> _vegetables = [
     {'name': '豆角', 'emoji': '🫘'},
     {'name': '菜心', 'emoji': '🥬'},
     {'name': '白菜', 'emoji': '🥦'},
+    {'name': '瓜软', 'emoji': '🥒'},
+    {'name': '白瓜', 'emoji': '🍈'},
   ];
 
   @override
@@ -58,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onKeyTap(String key) {
     SoundService.playKeyClick();
     setState(() {
-      // 处理小数点
       if (key == '.') {
         if (_inputValue.contains('.')) return;
         if (_inputValue == '0') {
@@ -69,7 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       
-      // 处理数字
       if (_inputValue == '0') {
         _inputValue = key;
       } else if (_inputValue.contains('.')) {
@@ -95,9 +96,15 @@ class _HomeScreenState extends State<HomeScreen> {
       SoundService.playError();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('请先选择菜品', style: TextStyle(fontSize: 18)),
+          content: Row(
+            children: [
+              Icon(Icons.warning, color: Colors.white),
+              SizedBox(width: 8),
+              Text('请先选择菜品再输入金额！', style: TextStyle(fontSize: 18)),
+            ],
+          ),
           backgroundColor: Colors.orange,
-          duration: Duration(seconds: 1),
+          duration: Duration(seconds: 2),
         ),
       );
       return;
@@ -123,7 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _saveAmount(String vegetable, double amount) async {
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     
-    // 创建新的交易记录
     final transaction = Transaction(
       date: today,
       vegetable: vegetable,
@@ -132,13 +138,12 @@ class _HomeScreenState extends State<HomeScreen> {
     
     await StorageService.addTransaction(transaction);
     
-    // 重新加载今日记录
-    final record = await StorageService.getRecordByDate(today);
+    // 重新加载数据
+    await _loadTodayRecord();
     
     SoundService.playSuccess();
     
     setState(() {
-      _todayRecord = record ?? DailyRecord(date: today);
       _inputValue = '0';
       _selectedVegetable = '';
     });
@@ -162,50 +167,25 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _navigateToDetail(String vegetable) {
-    Navigator.push(
+  void _navigateToDetail(String vegetable) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => VegetableDetailScreen(vegetable: vegetable),
       ),
     );
+    // 返回时刷新数据
+    _loadTodayRecord();
   }
 
-  Future<void> _exportData() async {
-    try {
-      final choice = await showDialog<String>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('导出数据', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          content: const Text('请选择导出方式', style: TextStyle(fontSize: 18)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'csv'),
-              child: const Text('导出Excel', style: TextStyle(fontSize: 18)),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'summary'),
-              child: const Text('分享统计', style: TextStyle(fontSize: 18)),
-            ),
-          ],
-        ),
-      );
-
-      if (choice == 'csv') {
-        await ExportService.exportAndShare();
-      } else if (choice == 'summary') {
-        await ExportService.shareSummary();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('导出失败：$e', style: const TextStyle(fontSize: 16)),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+  Future<void> _handleImport() async {
+    // TODO: 实现导入功能
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('导入功能开发中...', style: TextStyle(fontSize: 16)),
+        backgroundColor: Colors.blue,
+      ),
+    );
   }
 
   @override
@@ -220,74 +200,66 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: _exportData,
-          icon: const Icon(Icons.share, size: 28),
-          tooltip: '导出数据',
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HistoryScreen()),
-              );
-            },
-            icon: const Icon(Icons.history, size: 28),
-            tooltip: '历史记录',
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Column(
           children: [
-            // 日期和合计 - 压缩高度
+            // 顶部导航栏（自定义）
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              color: Colors.green,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildTopButton(Icons.share, '分享', () async {
+                    try {
+                      await ExportService.shareSummary();
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('分享失败：$e')),
+                        );
+                      }
+                    }
+                  }),
+                  _buildTopButton(Icons.download, '导入', _handleImport),
+                  _buildTopButton(Icons.history, '历史', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                    );
+                  }),
+                ],
+              ),
+            ),
+            
+            // 日期和今日合计
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               color: Colors.green,
-              child: Column(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _formattedDate,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          '合计 ${total.toStringAsFixed(1)} 元',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    _formattedDate,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerLeft,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Text(
-                      LunarHelper.getLunarDate(DateTime.now()),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.green.shade100,
+                      '今日合计 ${total.toStringAsFixed(1)} 元',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.green,
                       ),
                     ),
                   ),
@@ -295,100 +267,39 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            // 三个菜品并排显示
+            // 农历显示
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(bottom: 8),
+              color: Colors.green,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    LunarHelper.getLunarDate(DateTime.now()),
+                    style: TextStyle(fontSize: 13, color: Colors.green.shade100),
+                  ),
+                ),
+              ),
+            ),
+            
+            // 5个菜品 - 两行显示
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Row(
-                children: _vegetables.asMap().entries.map((entry) {
-                  final v = entry.value;
-                  final name = v['name']!;
-                  final emoji = v['emoji']!;
-                  final amount = _getVegetableAmount(name);
-                  final isSelected = _selectedVegetable == name;
-                  
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: GestureDetector(
-                        onTap: () => _selectVegetable(name),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: isSelected ? Colors.green.shade50 : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isSelected ? Colors.green : Colors.grey.shade300,
-                              width: isSelected ? 3 : 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isSelected 
-                                    ? Colors.green.withOpacity(0.3) 
-                                    : Colors.black.withOpacity(0.08),
-                                blurRadius: isSelected ? 8 : 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(emoji, style: const TextStyle(fontSize: 32)),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    name,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: isSelected ? Colors.green.shade700 : Colors.black87,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? Colors.green : Colors.grey.shade100,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      '${amount.toStringAsFixed(1)}元',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: isSelected ? Colors.white : Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              // 详情按钮
-                              Positioned(
-                                top: -6,
-                                right: -6,
-                                child: GestureDetector(
-                                  onTap: () => _navigateToDetail(name),
-                                  child: Container(
-                                    width: 22,
-                                    height: 22,
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.bar_chart, size: 12, color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+              child: Column(
+                children: [
+                  // 第一行：3个菜品
+                  Row(
+                    children: _vegetables.take(3).map((v) => _buildVegetableCard(v)).toList(),
+                  ),
+                  const SizedBox(height: 8),
+                  // 第二行：2个菜品居中
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _vegetables.skip(3).map((v) => _buildVegetableCard(v)).toList(),
+                  ),
+                ],
               ),
             ),
             
@@ -428,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            // 数字键盘 - 使用Flexible确保不会溢出
+            // 数字键盘
             Flexible(
               child: NumPad(
                 onKeyTap: _onKeyTap,
@@ -438,6 +349,120 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopButton(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.white, size: 28),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVegetableCard(Map<String, String> v) {
+    final name = v['name']!;
+    final emoji = v['emoji']!;
+    final amount = _getVegetableAmount(name);
+    final isSelected = _selectedVegetable == name;
+    
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: GestureDetector(
+          onTap: () => _selectVegetable(name),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.green.shade50 : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? Colors.green : Colors.grey.shade300,
+                width: isSelected ? 3 : 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isSelected 
+                      ? Colors.green.withOpacity(0.3) 
+                      : Colors.black.withOpacity(0.08),
+                  blurRadius: isSelected ? 8 : 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(emoji, style: const TextStyle(fontSize: 28)),
+                    const SizedBox(height: 2),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.green.shade700 : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.green : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '${amount.toStringAsFixed(1)}元',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: isSelected ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // 详情按钮
+                Positioned(
+                  top: -6,
+                  right: -6,
+                  child: GestureDetector(
+                    onTap: () => _navigateToDetail(name),
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.bar_chart, size: 10, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -3,7 +3,6 @@ import '../models/record.dart';
 import '../services/storage_service.dart';
 import '../services/export_service.dart';
 import '../utils/lunar_helper.dart';
-import 'vegetable_detail.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -62,40 +61,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
           SnackBar(content: Text('分享失败：$e')),
         );
       }
-    }
-  }
-
-  Future<void> _deleteDayRecords(String date) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('确认删除', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        content: Text('确定要删除 $_formatDate(date) 的所有记录吗？', style: const TextStyle(fontSize: 16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消', style: TextStyle(fontSize: 18)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除', style: TextStyle(fontSize: 18)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      final transactions = await StorageService.getTransactionsByDate(date);
-      for (var t in transactions) {
-        await StorageService.deleteTransaction(t.id);
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('已删除'), backgroundColor: Colors.orange),
-        );
-      }
-      _loadRecords();
     }
   }
 
@@ -201,7 +166,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         child: Column(
           children: [
-            // 头部 - 完整填充
+            // 头部
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -254,47 +219,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ],
                     ),
                   ),
-                  // 金额和删除按钮
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: hasRecord 
-                              ? (isToday ? Colors.white : Colors.green) 
-                              : Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '${record.total.toStringAsFixed(1)} 元',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: hasRecord 
-                                ? (isToday ? Colors.green : Colors.white) 
-                                : Colors.grey,
-                          ),
-                        ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: hasRecord 
+                          ? (isToday ? Colors.white : Colors.green) 
+                          : Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${record.total.toStringAsFixed(1)} 元',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: hasRecord 
+                            ? (isToday ? Colors.green : Colors.white) 
+                            : Colors.grey,
                       ),
-                      if (hasRecord) ...[
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () => _deleteDayRecords(record.date),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.delete_outline,
-                              size: 18,
-                              color: Colors.red.shade400,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -308,19 +250,27 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 children: [
                   Text(
                     _getLunarDate(record.date),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade500,
-                    ),
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                   ),
                   const SizedBox(height: 10),
+                  // 第一行：3个菜品
                   Row(
                     children: [
                       _buildVegetableItem('🫘 豆角', record.doubang),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       _buildVegetableItem('🥬 菜心', record.caixin),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       _buildVegetableItem('🥦 白菜', record.baicai),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  // 第二行：2个菜品
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildVegetableItem('🥒 瓜软', record.guaruan),
+                      const SizedBox(width: 6),
+                      _buildVegetableItem('🍈 白瓜', record.baigua),
                     ],
                   ),
                 ],
@@ -336,10 +286,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final hasAmount = amount > 0;
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
           color: hasAmount ? Colors.green.shade50 : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           border: hasAmount ? Border.all(color: Colors.green.shade200) : null,
         ),
         child: Column(
@@ -347,16 +297,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: hasAmount ? FontWeight.bold : FontWeight.normal,
                 color: hasAmount ? Colors.green.shade700 : Colors.grey,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               '${amount.toStringAsFixed(1)}',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.w900,
                 color: hasAmount ? Colors.green : Colors.grey,
               ),

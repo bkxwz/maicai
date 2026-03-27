@@ -2,7 +2,7 @@
 class Transaction {
   final String id;          // 唯一ID
   final String date;        // 日期 2026-03-27
-  final String vegetable;   // 菜品：豆角/菜心/白菜
+  final String vegetable;   // 菜品：豆角/菜心/白菜/瓜软/白瓜
   final double amount;      // 金额
   final int timestamp;      // 时间戳，用于排序
 
@@ -34,37 +34,27 @@ class Transaction {
       'timestamp': timestamp,
     };
   }
-
-  Transaction copyWith({
-    String? date,
-    String? vegetable,
-    double? amount,
-  }) {
-    return Transaction(
-      id: id,
-      date: date ?? this.date,
-      vegetable: vegetable ?? this.vegetable,
-      amount: amount ?? this.amount,
-      timestamp: timestamp,
-    );
-  }
 }
 
-/// 每日汇总记录（保持兼容）
+/// 每日汇总记录
 class DailyRecord {
   final String date;
-  final double doubang;
-  final double caixin;
-  final double baicai;
+  final double doubang;   // 豆角
+  final double caixin;    // 菜心
+  final double baicai;    // 白菜
+  final double guaruan;   // 瓜软
+  final double baigua;    // 白瓜
 
   DailyRecord({
     required this.date,
     this.doubang = 0,
     this.caixin = 0,
     this.baicai = 0,
+    this.guaruan = 0,
+    this.baigua = 0,
   });
 
-  double get total => doubang + caixin + baicai;
+  double get total => doubang + caixin + baicai + guaruan + baigua;
 
   factory DailyRecord.fromJson(Map<String, dynamic> json) {
     return DailyRecord(
@@ -72,6 +62,8 @@ class DailyRecord {
       doubang: (json['doubang'] as num?)?.toDouble() ?? 0,
       caixin: (json['caixin'] as num?)?.toDouble() ?? 0,
       baicai: (json['baicai'] as num?)?.toDouble() ?? 0,
+      guaruan: (json['guaruan'] as num?)?.toDouble() ?? 0,
+      baigua: (json['baigua'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -81,33 +73,19 @@ class DailyRecord {
       'doubang': doubang,
       'caixin': caixin,
       'baicai': baicai,
+      'guaruan': guaruan,
+      'baigua': baigua,
     };
-  }
-
-  DailyRecord copyWith({
-    String? date,
-    double? doubang,
-    double? caixin,
-    double? baicai,
-  }) {
-    return DailyRecord(
-      date: date ?? this.date,
-      doubang: doubang ?? this.doubang,
-      caixin: caixin ?? this.caixin,
-      baicai: baicai ?? this.baicai,
-    );
   }
 
   double getVegetableAmount(String vegetable) {
     switch (vegetable) {
-      case '豆角':
-        return doubang;
-      case '菜心':
-        return caixin;
-      case '白菜':
-        return baicai;
-      default:
-        return 0;
+      case '豆角': return doubang;
+      case '菜心': return caixin;
+      case '白菜': return baicai;
+      case '瓜软': return guaruan;
+      case '白瓜': return baigua;
+      default: return 0;
     }
   }
 }

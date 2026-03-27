@@ -16,11 +16,11 @@ class ExportService {
 
     // 生成CSV内容
     final StringBuffer buffer = StringBuffer();
-    buffer.writeln('日期,豆角(元),菜心(元),白菜(元),合计(元)');
+    buffer.writeln('日期,豆角(元),菜心(元),白菜(元),瓜软(元),白瓜(元),合计(元)');
     
     for (var record in records) {
       buffer.writeln(
-        '${record.date},${record.doubang.toStringAsFixed(1)},${record.caixin.toStringAsFixed(1)},${record.baicai.toStringAsFixed(1)},${record.total.toStringAsFixed(1)}'
+        '${record.date},${record.doubang.toStringAsFixed(1)},${record.caixin.toStringAsFixed(1)},${record.baicai.toStringAsFixed(1)},${record.guaruan.toStringAsFixed(1)},${record.baigua.toStringAsFixed(1)},${record.total.toStringAsFixed(1)}'
       );
     }
 
@@ -53,14 +53,18 @@ class ExportService {
     double totalDoubang = 0;
     double totalCaixin = 0;
     double totalBaicai = 0;
+    double totalGuaruan = 0;
+    double totalBaigua = 0;
     
     for (var record in records) {
       totalDoubang += record.doubang;
       totalCaixin += record.caixin;
       totalBaicai += record.baicai;
+      totalGuaruan += record.guaruan;
+      totalBaigua += record.baigua;
     }
     
-    final grandTotal = totalDoubang + totalCaixin + totalBaicai;
+    final grandTotal = totalDoubang + totalCaixin + totalBaicai + totalGuaruan + totalBaigua;
     
     buffer.writeln('📅 共记录 ${records.length} 天');
     buffer.writeln('💰 累计收入：${grandTotal.toStringAsFixed(1)} 元');
@@ -68,6 +72,8 @@ class ExportService {
     buffer.writeln('🫘 豆角：${totalDoubang.toStringAsFixed(1)} 元');
     buffer.writeln('🥬 菜心：${totalCaixin.toStringAsFixed(1)} 元');
     buffer.writeln('🥦 白菜：${totalBaicai.toStringAsFixed(1)} 元');
+    buffer.writeln('🥒 瓜软：${totalGuaruan.toStringAsFixed(1)} 元');
+    buffer.writeln('🍈 白瓜：${totalBaigua.toStringAsFixed(1)} 元');
     buffer.writeln('');
     buffer.writeln('━━━━━━━━━━━━━━━━━━');
     
