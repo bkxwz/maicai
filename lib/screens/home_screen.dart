@@ -59,8 +59,26 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onKeyTap(String key) {
     SoundService.playKeyClick();
     setState(() {
+      // 处理小数点
+      if (key == '.') {
+        if (_inputValue.contains('.')) return; // 已有小数点
+        if (_inputValue == '0') {
+          _inputValue = '0.';
+        } else {
+          _inputValue += '.';
+        }
+        return;
+      }
+      
+      // 处理数字
       if (_inputValue == '0') {
         _inputValue = key;
+      } else if (_inputValue.contains('.')) {
+        // 小数点后最多2位
+        final parts = _inputValue.split('.');
+        if (parts[1].length < 2 && _inputValue.length < 8) {
+          _inputValue += key;
+        }
       } else if (_inputValue.length < 6) {
         _inputValue += key;
       }

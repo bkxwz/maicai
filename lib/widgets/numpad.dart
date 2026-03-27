@@ -17,8 +17,9 @@ class NumPad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -27,7 +28,7 @@ class NumPad extends StatelessWidget {
               _buildKey('3'),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Row(
             children: [
               _buildKey('4'),
@@ -35,7 +36,7 @@ class NumPad extends StatelessWidget {
               _buildKey('6'),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Row(
             children: [
               _buildKey('7'),
@@ -43,12 +44,47 @@ class NumPad extends StatelessWidget {
               _buildKey('9'),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Row(
             children: [
               _buildActionKey('清除', Colors.orange, onClear),
               _buildKey('0'),
-              _buildActionKey('确认', Colors.green, onConfirm),
+              _buildKey('.'),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Material(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(14),
+                    elevation: 3,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: onConfirm,
+                      child: Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '确认',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -62,22 +98,22 @@ class NumPad extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Material(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          elevation: 4,
+          borderRadius: BorderRadius.circular(14),
+          elevation: 3,
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             onTap: () => onKeyTap(number),
             child: Container(
-              height: 64,
+              height: 56,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: Colors.grey.shade300, width: 2),
               ),
               child: Center(
                 child: Text(
-                  number,
-                  style: const TextStyle(
-                    fontSize: 36,
+                  number == '.' ? '．' : number,
+                  style: TextStyle(
+                    fontSize: number == '.' ? 32 : 34,
                     fontWeight: FontWeight.w900,
                     color: Colors.black87,
                   ),
@@ -96,21 +132,21 @@ class NumPad extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Material(
           color: color,
-          borderRadius: BorderRadius.circular(16),
-          elevation: 4,
+          borderRadius: BorderRadius.circular(14),
+          elevation: 3,
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             onTap: onTap,
             child: Container(
-              height: 64,
+              height: 56,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Center(
                 child: Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
