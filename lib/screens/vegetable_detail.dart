@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
+import '../utils/lunar_helper.dart';
 
 class VegetableDetailScreen extends StatefulWidget {
   final String vegetable;
@@ -97,12 +98,17 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
 
   String _formatDate(String dateStr) {
     final date = DateTime.parse(dateStr);
-    return '${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    return '${date.month}月${date.day}日';
+  }
+  
+  String _getLunarDate(String dateStr) {
+    final date = DateTime.parse(dateStr);
+    return LunarHelper.getLunarDate(date);
   }
 
   String _formatDateRange() {
-    final start = DateFormat('MM-dd').format(_startDate);
-    final end = DateFormat('MM-dd').format(_endDate);
+    final start = '${_startDate.month}月${_startDate.day}日';
+    final end = '${_endDate.month}月${_endDate.day}日';
     return '$start 至 $end';
   }
 
@@ -236,36 +242,57 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                             final record = _records[index];
                             final amount = record.getVegetableAmount(widget.vegetable);
                             return Container(
-                              margin: const EdgeInsets.only(bottom: 8),
+                              margin: const EdgeInsets.only(bottom: 10),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 4,
+                                    color: Colors.green.withOpacity(0.1),
+                                    blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    _formatDate(record.date),
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _formatDate(record.date),
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          _getLunarDate(record.date),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey.shade500,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Text(
-                                    '${amount.toStringAsFixed(0)} 元',
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w900,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    decoration: BoxDecoration(
                                       color: Colors.green,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      '${amount.toStringAsFixed(0)} 元',
+                                      style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ],

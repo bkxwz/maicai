@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
 import '../widgets/numpad.dart';
-import '../widgets/vegetable_card.dart';
+import '../utils/lunar_helper.dart';
 import 'vegetable_detail.dart';
 import 'history_screen.dart';
 
@@ -42,8 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String get _formattedDate {
-    final now = DateTime.now();
-    return '${now.year}年${now.month}月${now.day}日';
+    return LunarHelper.getFullDateString(DateTime.now());
   }
 
   double _getVegetableAmount(String name) {
@@ -71,8 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_selectedVegetable.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('请先选择菜品'),
+          content: Text('请先选择菜品', style: TextStyle(fontSize: 18)),
           backgroundColor: Colors.orange,
+          duration: Duration(seconds: 1),
         ),
       );
       return;
@@ -82,8 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('请输入金额'),
+          content: Text('请输入金额', style: TextStyle(fontSize: 18)),
           backgroundColor: Colors.orange,
+          duration: Duration(seconds: 1),
         ),
       );
       return;
@@ -121,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已记录 $vegetable +${amount.toStringAsFixed(0)} 元'),
+          content: Text('已记录 $vegetable +${amount.toStringAsFixed(0)} 元', style: const TextStyle(fontSize: 18)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 1),
         ),
@@ -158,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text('卖菜记账', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('卖菜记账', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
         centerTitle: true,
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
@@ -166,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
+          // 日期和合计
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -175,14 +177,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   _formattedDate,
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 20,
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -190,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     '今日合计：${total.toStringAsFixed(0)} 元',
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 26,
                       fontWeight: FontWeight.w900,
                       color: Colors.green,
                     ),
@@ -199,48 +201,116 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: _vegetables.map((v) {
+          
+          const SizedBox(height: 16),
+          
+          // 三个菜品并排显示
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: _vegetables.asMap().entries.map((entry) {
+                final v = entry.value;
                 final name = v['name']!;
-                return VegetableCard(
-                  name: name,
-                  emoji: v['emoji']!,
-                  amount: _getVegetableAmount(name),
-                  isSelected: _selectedVegetable == name,
-                  onTap: () => _selectVegetable(name),
-                  onLongPress: () => _navigateToDetail(name),
+                final emoji = v['emoji']!;
+                final amount = _getVegetableAmount(name);
+                final isSelected = _selectedVegetable == name;
+                
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: GestureDetector(
+                      onTap: () => _selectVegetable(name),
+                      onLongPress: () => _navigateToDetail(name),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.green.shade50 : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? Colors.green : Colors.grey.shade300,
+                            width: isSelected ? 3 : 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isSelected 
+                                  ? Colors.green.withOpacity(0.3) 
+                                  : Colors.black.withOpacity(0.08),
+                              blurRadius: isSelected ? 10 : 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              emoji,
+                              style: const TextStyle(fontSize: 40),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              name,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: isSelected ? Colors.green.shade700 : Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.green : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '${amount.toStringAsFixed(0)} 元',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  color: isSelected ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 );
               }).toList(),
             ),
           ),
+          
+          const SizedBox(height: 12),
+          
+          // 输入金额显示
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             color: Colors.white,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  _selectedVegetable.isEmpty ? '请选择菜品' : '输入 $_selectedVegetable 金额：',
+                  _selectedVegetable.isEmpty ? '请选择菜品' : '输入 $_selectedVegetable：',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                     color: _selectedVegetable.isEmpty ? Colors.grey : Colors.black87,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.green, width: 2),
                   ),
                   child: Text(
                     '$_inputValue 元',
                     style: const TextStyle(
-                      fontSize: 28,
+                      fontSize: 30,
                       fontWeight: FontWeight.w900,
                       color: Colors.green,
                     ),
@@ -249,14 +319,22 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          NumPad(
-            onKeyTap: _onKeyTap,
-            onClear: _onClear,
-            onConfirm: _onConfirm,
-            currentValue: _inputValue,
+          
+          const SizedBox(height: 8),
+          
+          // 数字键盘
+          Expanded(
+            child: NumPad(
+              onKeyTap: _onKeyTap,
+              onClear: _onClear,
+              onConfirm: _onConfirm,
+              currentValue: _inputValue,
+            ),
           ),
+          
+          // 历史记录按钮
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: 12),
             child: TextButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -264,8 +342,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (context) => const HistoryScreen()),
                 );
               },
-              icon: const Icon(Icons.history, size: 20),
-              label: const Text('查看历史记录', style: TextStyle(fontSize: 16)),
+              icon: const Icon(Icons.history, size: 24),
+              label: const Text('查看历史记录', style: TextStyle(fontSize: 18)),
               style: TextButton.styleFrom(foregroundColor: Colors.green),
             ),
           ),
