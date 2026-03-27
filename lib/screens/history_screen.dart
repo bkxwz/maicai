@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
+import '../services/export_service.dart';
 import '../utils/lunar_helper.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -59,6 +60,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
         centerTitle: true,
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () async {
+              try {
+                await ExportService.shareSummary();
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('分享失败：$e')),
+                  );
+                }
+              }
+            },
+            icon: const Icon(Icons.share, size: 26),
+            tooltip: '分享统计',
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

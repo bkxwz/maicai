@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
+import '../services/sound_service.dart';
+import '../services/export_service.dart';
 import '../widgets/numpad.dart';
 import '../utils/lunar_helper.dart';
 import 'vegetable_detail.dart';
@@ -42,7 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String get _formattedDate {
-    return LunarHelper.getFullDateString(DateTime.now());
+    final now = DateTime.now();
+    final weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    final weekday = weekdays[now.weekday % 7];
+    final lunar = LunarHelper.getLunarDate(now);
+    return '${now.year}年${now.month}月${now.day}日 $weekday\n$lunar';
   }
 
   double _getVegetableAmount(String name) {
@@ -51,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onKeyTap(String key) {
+    SoundService.playKeyClick();
     setState(() {
       if (_inputValue == '0') {
         _inputValue = key;
@@ -61,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onClear() {
+    SoundService.playKeyClick();
     setState(() {
       _inputValue = '0';
     });
@@ -90,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    SoundService.playConfirm();
     _saveAmount(_selectedVegetable, amount);
   }
 
@@ -113,6 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     await StorageService.saveRecord(newRecord);
     
+    SoundService.playSuccess();
+    
     setState(() {
       _todayRecord = newRecord;
       _inputValue = '0';
@@ -122,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已记录 $vegetable +${amount.toStringAsFixed(0)} 元', style: const TextStyle(fontSize: 18)),
+          content: Text('✓ $vegetable +${amount.toStringAsFixed(0)} 元', style: const TextStyle(fontSize: 20)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 1),
         ),
@@ -131,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _selectVegetable(String name) {
+    SoundService.playKeyClick();
     setState(() {
       _selectedVegetable = name;
       _inputValue = '0';
@@ -144,6 +156,44 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) => VegetableDetailScreen(vegetable: vegetable),
       ),
     );
+  }
+
+  Future<void> _exportData() async {
+    try {
+      // 显示选择对话框
+      final choice = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('导出数据', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          content: const Text('请选择导出方式', style: TextStyle(fontSize: 18)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'csv'),
+              child: const Text('导出Excel', style: TextStyle(fontSize: 18)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'summary'),
+              child: const Text('分享统计', style: TextStyle(fontSize: 18)),
+            ),
+          ],
+        ),
+      );
+
+      if (choice == 'csv') {
+        await ExportService.exportAndShare();
+      } else if (choice == 'summary') {
+        await ExportService.shareSummary();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('导出失败：$e', style: const TextStyle(fontSize: 16)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -164,6 +214,13 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: _exportData,
+            icon: const Icon(Icons.share, size: 26),
+            tooltip: '导出数据',
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -177,12 +234,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   _formattedDate,
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
                   decoration: BoxDecoration(
@@ -204,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
           
           const SizedBox(height: 16),
           
-          // 三个菜品并排显示
+          // 三个菜品并排显示 - 添加X按钮进入详情
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
@@ -220,10 +278,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: GestureDetector(
                       onTap: () => _selectVegetable(name),
-                      onLongPress: () => _navigateToDetail(name),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: isSelected ? Colors.green.shade50 : Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -241,34 +298,67 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        child: Column(
+                        child: Stack(
+                          clipBehavior: Clip.none,
                           children: [
-                            Text(
-                              emoji,
-                              style: const TextStyle(fontSize: 40),
+                            Column(
+                              children: [
+                                Text(
+                                  emoji,
+                                  style: const TextStyle(fontSize: 36),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  name,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected ? Colors.green.shade700 : Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? Colors.green : Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    '${amount.toStringAsFixed(0)} 元',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      color: isSelected ? Colors.white : Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              name,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected ? Colors.green.shade700 : Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: isSelected ? Colors.green : Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '${amount.toStringAsFixed(0)} 元',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  color: isSelected ? Colors.white : Colors.black87,
+                            // X按钮进入详情
+                            Positioned(
+                              top: -8,
+                              right: -8,
+                              child: GestureDetector(
+                                onTap: () => _navigateToDetail(name),
+                                child: Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade400,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.bar_chart,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),

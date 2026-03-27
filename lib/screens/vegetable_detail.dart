@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
 import '../utils/lunar_helper.dart';
@@ -70,7 +69,30 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
     _loadData();
   }
 
-  Future<void> _selectDateRange() async {
+  void _selectLastWeek() {
+    final now = DateTime.now();
+    setState(() {
+      _isThisMonth = false;
+      _endDate = now;
+      _startDate = now.subtract(const Duration(days: 7));
+    });
+    _loadData();
+  }
+
+  void _selectLastMonth() {
+    final now = DateTime.now();
+    final lastMonth = DateTime(now.year, now.month - 1, 1);
+    final lastMonthEnd = DateTime(now.year, now.month, 0);
+    setState(() {
+      _isThisMonth = false;
+      _startDate = lastMonth;
+      _endDate = lastMonthEnd;
+    });
+    _loadData();
+  }
+
+  void _selectCustomRange() async {
+    // 使用中文日期选择器
     final picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2020),
@@ -109,14 +131,14 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
   String _formatDateRange() {
     final start = '${_startDate.month}月${_startDate.day}日';
     final end = '${_endDate.month}月${_endDate.day}日';
-    return '$start 至 $end';
+    return '$start - $end';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('$_emoji ${widget.vegetable}', style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('$_emoji ${widget.vegetable}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
         centerTitle: true,
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
@@ -132,15 +154,15 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                   child: Column(
                     children: [
                       Text(
-                        _isThisMonth ? '本月销售总额' : '销售总额',
+                        _isThisMonth ? '本月销售总额' : '期间销售总额',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           color: Colors.white70,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(30),
@@ -148,13 +170,13 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                         child: Text(
                           '${_total.toStringAsFixed(0)} 元',
                           style: const TextStyle(
-                            fontSize: 36,
+                            fontSize: 38,
                             fontWeight: FontWeight.w900,
                             color: Colors.green,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         '共 ${_records.length} 天有记录',
                         style: const TextStyle(
@@ -165,53 +187,48 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                     ],
                   ),
                 ),
+                
+                // 时间范围选择
                 Container(
                   padding: const EdgeInsets.all(12),
                   color: Colors.grey.shade100,
-                  child: Row(
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _switchToThisMonth,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _isThisMonth ? Colors.green : Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.green),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '本月',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: _isThisMonth ? Colors.white : Colors.green,
-                                ),
-                              ),
-                            ),
+                      // 快捷选择按钮
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildQuickButton('本月', _isThisMonth, _switchToThisMonth),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildQuickButton('近一周', false, _selectLastWeek),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildQuickButton('上月', false, _selectLastMonth),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _selectDateRange,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: !_isThisMonth ? Colors.green : Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.green),
-                            ),
-                            child: Center(
-                              child: Text(
-                                !_isThisMonth ? _formatDateRange() : '自定义',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: !_isThisMonth ? Colors.white : Colors.green,
-                                ),
+                      const SizedBox(height: 10),
+                      // 自定义范围按钮
+                      GestureDetector(
+                        onTap: _selectCustomRange,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.green, width: 2),
+                          ),
+                          child: Center(
+                            child: Text(
+                              _isThisMonth ? '📅 自定义日期范围' : '📅 ${_formatDateRange()}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
                               ),
                             ),
                           ),
@@ -220,6 +237,8 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                     ],
                   ),
                 ),
+                
+                // 记录列表
                 Expanded(
                   child: _records.isEmpty
                       ? Center(
@@ -229,7 +248,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                               Icon(Icons.inbox, size: 64, color: Colors.grey.shade400),
                               const SizedBox(height: 16),
                               Text(
-                                '暂无记录',
+                                '该时段暂无记录',
                                 style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
                               ),
                             ],
@@ -303,6 +322,30 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildQuickButton(String label, bool isActive, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.green : Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.green),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: isActive ? Colors.white : Colors.green,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
