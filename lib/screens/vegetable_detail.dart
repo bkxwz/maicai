@@ -204,7 +204,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
             Container(
               width: 32,
               height: 32,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
