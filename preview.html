@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>卖菜记账 - 界面预览</title>
+    <title>卖菜记账 - 最新界面</title>
     <style>
         * {
             margin: 0;
@@ -29,6 +29,52 @@
             align-items: flex-start;
         }
         
+        .title {
+            text-align: center;
+            color: white;
+            padding: 30px 20px;
+        }
+        
+        .title h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .title p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+        
         .phone {
             width: 390px;
             background: #f5f5f5;
@@ -50,6 +96,14 @@
             border-radius: 2px;
         }
         
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
         .status-bar {
             height: 44px;
             background: #4CAF50;
@@ -62,104 +116,115 @@
             font-weight: 600;
         }
         
-        .app-bar {
-            height: 56px;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        /* 主界面 */
+        .top-bar {
+            background: #4CAF50;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .top-btn {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 4px;
             color: white;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .top-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .top-btn .icon {
             font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 2px;
         }
         
-        .screen {
-            display: none;
-        }
-        
-        .screen.active {
-            display: block;
-        }
-        
-        /* 主界面样式 */
-        .date-header {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            padding: 20px 16px;
-            text-align: center;
-            color: white;
-        }
-        
-        .date-header .date {
-            font-size: 20px;
-            margin-bottom: 4px;
+        .top-btn .text {
+            font-size: 14px;
             font-weight: 500;
         }
         
-        .date-header .lunar {
-            font-size: 14px;
-            color: rgba(255,255,255,0.85);
-            margin-bottom: 14px;
+        .date-header {
+            background: #4CAF50;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .date-header .date {
+            font-size: 15px;
+            color: white;
+            font-weight: 500;
         }
         
         .date-header .total-badge {
-            display: inline-block;
             background: white;
-            padding: 12px 36px;
-            border-radius: 30px;
+            padding: 6px 14px;
+            border-radius: 16px;
             color: #4CAF50;
-            font-size: 26px;
+            font-size: 16px;
             font-weight: 900;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
-        /* 菜品并排显示 */
+        .date-header .lunar {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            padding: 0 12px 6px;
+            background: #4CAF50;
+        }
+        
         .vegetable-row {
             display: flex;
-            padding: 16px 12px;
-            gap: 10px;
+            padding: 6px 8px;
+            background: #f5f5f5;
+            gap: 4px;
         }
         
         .veg-card {
             flex: 1;
             background: white;
-            border-radius: 16px;
-            padding: 16px 8px;
+            border-radius: 10px;
+            padding: 8px 2px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            border: 3px solid transparent;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
         }
         
         .veg-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .veg-card.selected {
             border-color: #4CAF50;
             background: #f0fff0;
-            box-shadow: 0 6px 25px rgba(76,175,80,0.3);
+            box-shadow: 0 4px 10px rgba(76,175,80,0.3);
         }
         
         .veg-card .emoji {
-            font-size: 40px;
-            margin-bottom: 6px;
+            font-size: 24px;
         }
         
         .veg-card .name {
-            font-size: 18px;
+            font-size: 11px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 8px;
+            margin: 2px 0;
         }
         
         .veg-card .amount {
             background: #f5f5f5;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 18px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 12px;
             font-weight: 900;
             color: #333;
         }
@@ -169,25 +234,32 @@
             color: white;
         }
         
-        .veg-card .hint {
+        .veg-card .detail-btn {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 18px;
+            height: 18px;
+            background: #2196F3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 10px;
-            color: #999;
-            margin-top: 6px;
+            color: white;
         }
         
-        /* 输入显示 */
         .input-display {
-            padding: 12px 16px;
+            padding: 6px 12px;
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            border-top: 1px solid #eee;
+            gap: 6px;
         }
         
         .input-display .label {
-            font-size: 18px;
+            font-size: 14px;
             color: #666;
             font-weight: 500;
         }
@@ -195,38 +267,38 @@
         .input-display .value-box {
             background: #f0fff0;
             border: 2px solid #4CAF50;
-            border-radius: 10px;
-            padding: 10px 24px;
-            font-size: 30px;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 22px;
             font-weight: 900;
             color: #4CAF50;
         }
         
-        /* 数字键盘 */
         .numpad {
-            padding: 12px;
+            padding: 8px 12px;
             background: #e8e8e8;
+            flex: 1;
         }
         
         .numpad-row {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 6px;
         }
         
         .num-key {
             flex: 1;
-            height: 70px;
+            height: 56px;
             background: white;
-            border-radius: 16px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 34px;
             font-weight: 900;
             color: #333;
             cursor: pointer;
-            box-shadow: 0 4px 0 #ddd, 0 6px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 0 #ddd, 0 4px 10px rgba(0,0,0,0.1);
             border: none;
             transition: all 0.1s;
             user-select: none;
@@ -238,37 +310,28 @@
         
         .num-key:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 #ddd, 0 3px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 0 #ddd, 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .num-key.clear {
             background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
             color: white;
             font-size: 22px;
-            box-shadow: 0 4px 0 #E65100, 0 6px 15px rgba(255,152,0,0.4);
+            box-shadow: 0 3px 0 #E65100, 0 4px 10px rgba(255,152,0,0.4);
+        }
+        
+        .num-key.dot {
+            font-size: 32px;
         }
         
         .num-key.confirm {
             background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
             color: white;
             font-size: 22px;
-            box-shadow: 0 4px 0 #1B5E20, 0 6px 15px rgba(76,175,80,0.4);
+            box-shadow: 0 3px 0 #1B5E20, 0 4px 10px rgba(76,175,80,0.4);
         }
         
-        .history-btn {
-            padding: 12px;
-            text-align: center;
-            background: #f5f5f5;
-        }
-        
-        .history-btn a {
-            color: #4CAF50;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: 500;
-        }
-        
-        /* 历史记录页样式 */
+        /* 历史记录页面 */
         .grand-total {
             background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             padding: 24px;
@@ -295,7 +358,7 @@
         
         .history-list {
             padding: 16px;
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
         }
         
@@ -354,7 +417,7 @@
         }
         
         .date-main {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #333;
         }
@@ -376,7 +439,7 @@
         .history-total {
             padding: 8px 16px;
             border-radius: 10px;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 900;
             background: #4CAF50;
             color: white;
@@ -390,13 +453,14 @@
         .history-body {
             padding: 14px;
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 6px;
         }
         
         .veg-item {
             flex: 1;
-            padding: 12px 8px;
-            border-radius: 10px;
+            padding: 8px 4px;
+            border-radius: 8px;
             text-align: center;
         }
         
@@ -410,13 +474,13 @@
         }
         
         .veg-item .name {
-            font-size: 13px;
+            font-size: 11px;
             color: #666;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         
         .veg-item .amount {
-            font-size: 22px;
+            font-size: 16px;
             font-weight: 900;
             color: #4CAF50;
         }
@@ -425,7 +489,7 @@
             color: #bbb;
         }
         
-        /* 菜品详情页样式 */
+        /* 菜品详情页面 */
         .detail-total {
             background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             padding: 24px;
@@ -453,16 +517,18 @@
         .date-tabs {
             display: flex;
             padding: 12px;
-            gap: 12px;
+            gap: 8px;
             background: #f5f5f5;
+            flex-wrap: wrap;
         }
         
         .date-tab {
             flex: 1;
-            padding: 12px;
+            min-width: 80px;
+            padding: 10px;
             text-align: center;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: bold;
             background: white;
             color: #4CAF50;
@@ -477,43 +543,73 @@
         
         .detail-list {
             padding: 16px;
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
+        }
+        
+        .detail-day-group {
+            margin-bottom: 16px;
+        }
+        
+        .detail-day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+        
+        .detail-day-header .date {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .detail-day-header .lunar {
+            font-size: 12px;
+            color: #999;
+            margin-left: 8px;
+        }
+        
+        .detail-day-header .subtotal {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4CAF50;
         }
         
         .detail-item {
             background: white;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            box-shadow: 0 3px 10px rgba(76,175,80,0.1);
+            box-shadow: 0 2px 6px rgba(76,175,80,0.08);
         }
         
-        .detail-date {
+        .detail-item .time {
+            width: 50px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .detail-item .amount {
             flex: 1;
-        }
-        
-        .detail-date .main {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #333;
         }
         
-        .detail-date .lunar {
-            font-size: 14px;
-            color: #999;
-            margin-top: 4px;
-        }
-        
-        .detail-amount {
-            background: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 22px;
-            font-weight: 900;
+        .detail-item .delete-btn {
+            width: 32px;
+            height: 32px;
+            background: #ffebee;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #f44336;
         }
         
         .back-btn {
@@ -525,55 +621,7 @@
         .back-btn a {
             color: #4CAF50;
             text-decoration: none;
-            font-size: 18px;
-        }
-        
-        /* 导航标签 */
-        .nav-tabs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .nav-tab {
-            padding: 12px 24px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 30px;
-            color: white;
             font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .nav-tab:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .nav-tab.active {
-            background: white;
-            color: #667eea;
-            border-color: white;
-        }
-        
-        .title {
-            text-align: center;
-            padding: 30px 20px;
-            color: white;
-        }
-        
-        .title h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        
-        .title p {
-            font-size: 16px;
-            opacity: 0.9;
         }
         
         .phone-label {
@@ -590,8 +638,8 @@
     <div class="container">
         <div class="title">
             <h1>🥬 卖菜记账 App</h1>
-            <p>专为老人设计 · 简单易用</p>
-            <div class="nav-tabs" style="margin-top: 20px;">
+            <p>专为老人设计 · 简单易用 · 5个菜品</p>
+            <div class="nav-tabs">
                 <div class="nav-tab active" onclick="showScreen('home')">主界面</div>
                 <div class="nav-tab" onclick="showScreen('history')">历史记录</div>
                 <div class="nav-tab" onclick="showScreen('detail')">菜品详情</div>
@@ -607,40 +655,68 @@
                         <span>9:41</span>
                         <span>📶 📡 🔋</span>
                     </div>
-                    <div class="app-bar">卖菜记账</div>
                     
-                    <div class="date-header">
-                        <div class="date">2026年3月27日</div>
-                        <div class="lunar">农历二月初一</div>
-                        <div class="total-badge">今日合计：265 元</div>
+                    <!-- 顶栏：分享 导入 历史 -->
+                    <div class="top-bar">
+                        <div class="top-btn" onclick="showScreen('history')">
+                            <span class="icon">📤</span>
+                            <span class="text">分享</span>
+                        </div>
+                        <div class="top-btn">
+                            <span class="icon">📥</span>
+                            <span class="text">导入</span>
+                        </div>
+                        <div class="top-btn" onclick="showScreen('history')">
+                            <span class="icon">📜</span>
+                            <span class="text">历史</span>
+                        </div>
                     </div>
                     
+                    <!-- 日期和今日合计 -->
+                    <div class="date-header">
+                        <span class="date">3月27日 周五</span>
+                        <span class="total-badge">今日合计 72.3 元</span>
+                    </div>
+                    <div class="date-header">
+                        <span class="lunar">农历二月初九</span>
+                    </div>
+                    
+                    <!-- 5个菜品一行显示 -->
                     <div class="vegetable-row">
                         <div class="veg-card selected" onclick="selectCard(this)">
                             <div class="emoji">🫘</div>
                             <div class="name">豆角</div>
-                            <div class="amount">120 元</div>
-                            <div class="hint">点击选择 · 长按看明细</div>
+                            <div class="amount">12.5</div>
                         </div>
                         <div class="veg-card" onclick="selectCard(this)">
                             <div class="emoji">🥬</div>
                             <div class="name">菜心</div>
-                            <div class="amount">85 元</div>
-                            <div class="hint">点击选择 · 长按看明细</div>
+                            <div class="amount">8.0</div>
                         </div>
                         <div class="veg-card" onclick="selectCard(this)">
                             <div class="emoji">🥦</div>
                             <div class="name">白菜</div>
-                            <div class="amount">60 元</div>
-                            <div class="hint">点击选择 · 长按看明细</div>
+                            <div class="amount">6.0</div>
+                        </div>
+                        <div class="veg-card" onclick="selectCard(this)">
+                            <div class="emoji">🥒</div>
+                            <div class="name">瓜软</div>
+                            <div class="amount">0.0</div>
+                        </div>
+                        <div class="veg-card" onclick="selectCard(this)">
+                            <div class="emoji">🍈</div>
+                            <div class="name">白瓜</div>
+                            <div class="amount">0.0</div>
                         </div>
                     </div>
                     
+                    <!-- 输入金额显示 -->
                     <div class="input-display">
-                        <span class="label">输入 豆角：</span>
+                        <span class="label">豆角：</span>
                         <span class="value-box" id="display">0 元</span>
                     </div>
                     
+                    <!-- 数字键盘 -->
                     <div class="numpad">
                         <div class="numpad-row">
                             <div class="num-key" onclick="pressKey('1')">1</div>
@@ -660,12 +736,11 @@
                         <div class="numpad-row">
                             <div class="num-key clear" onclick="clearInput()">清除</div>
                             <div class="num-key" onclick="pressKey('0')">0</div>
-                            <div class="num-key confirm" onclick="confirmInput()">确认</div>
+                            <div class="num-key dot" onclick="pressKey('.')">．</div>
                         </div>
-                    </div>
-                    
-                    <div class="history-btn">
-                        <a href="#" onclick="showScreen('history'); return false;">📋 查看历史记录</a>
+                        <div class="numpad-row">
+                            <div class="num-key confirm" onclick="confirmInput()" style="flex: 1;">确认</div>
+                        </div>
                     </div>
                 </div>
                 
@@ -675,11 +750,11 @@
                         <span>9:41</span>
                         <span>📶 📡 🔋</span>
                     </div>
-                    <div class="app-bar">历史记录</div>
+                    <div style="height: 56px; background: #4CAF50; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: bold;">历史记录</div>
                     
                     <div class="grand-total">
                         <div class="label">累计总收入</div>
-                        <div class="total">675 元</div>
+                        <div class="total">675.0 元</div>
                         <div class="count">共 3 天有记录</div>
                     </div>
                     
@@ -689,22 +764,34 @@
                                 <div class="history-date">
                                     <span class="today-badge">今天</span>
                                     <span class="date-main">2026年3月27日</span>
-                                    <div class="date-lunar">农历二月初一</div>
+                                    <div class="date-lunar">农历二月初九</div>
                                 </div>
-                                <div class="history-total">265 元</div>
+                                <div class="history-total">26.5 元</div>
                             </div>
                             <div class="history-body">
-                                <div class="veg-item has-amount">
-                                    <div class="name">🫘 豆角</div>
-                                    <div class="amount">120</div>
+                                <div style="display: flex; gap: 6px;">
+                                    <div class="veg-item has-amount">
+                                        <div class="name">🫘 豆角</div>
+                                        <div class="amount">12.5</div>
+                                    </div>
+                                    <div class="veg-item has-amount">
+                                        <div class="name">🥬 菜心</div>
+                                        <div class="amount">8.0</div>
+                                    </div>
+                                    <div class="veg-item has-amount">
+                                        <div class="name">🥦 白菜</div>
+                                        <div class="amount">6.0</div>
+                                    </div>
                                 </div>
-                                <div class="veg-item has-amount">
-                                    <div class="name">🥬 菜心</div>
-                                    <div class="amount">85</div>
-                                </div>
-                                <div class="veg-item has-amount">
-                                    <div class="name">🥦 白菜</div>
-                                    <div class="amount">60</div>
+                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                        <div class="name">🥒 瓜软</div>
+                                        <div class="amount">0.0</div>
+                                    </div>
+                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                        <div class="name">🍈 白瓜</div>
+                                        <div class="amount">0.0</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -713,22 +800,34 @@
                             <div class="history-header">
                                 <div class="history-date">
                                     <span class="date-main">2026年3月26日</span>
-                                    <div class="date-lunar">农历正月三十</div>
+                                    <div class="date-lunar">农历二月初八</div>
                                 </div>
-                                <div class="history-total">205 元</div>
+                                <div class="history-total">20.5 元</div>
                             </div>
                             <div class="history-body">
-                                <div class="veg-item has-amount">
-                                    <div class="name">🫘 豆角</div>
-                                    <div class="amount">95</div>
+                                <div style="display: flex; gap: 6px;">
+                                    <div class="veg-item has-amount">
+                                        <div class="name">🫘 豆角</div>
+                                        <div class="amount">9.5</div>
+                                    </div>
+                                    <div class="veg-item has-amount">
+                                        <div class="name">🥬 菜心</div>
+                                        <div class="amount">11.0</div>
+                                    </div>
+                                    <div class="veg-item no-amount">
+                                        <div class="name">🥦 白菜</div>
+                                        <div class="amount">0.0</div>
+                                    </div>
                                 </div>
-                                <div class="veg-item has-amount">
-                                    <div class="name">🥬 菜心</div>
-                                    <div class="amount">110</div>
-                                </div>
-                                <div class="veg-item no-amount">
-                                    <div class="name">🥦 白菜</div>
-                                    <div class="amount">0</div>
+                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                        <div class="name">🥒 瓜软</div>
+                                        <div class="amount">0.0</div>
+                                    </div>
+                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                        <div class="name">🍈 白瓜</div>
+                                        <div class="amount">0.0</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -737,22 +836,34 @@
                             <div class="history-header">
                                 <div class="history-date">
                                     <span class="date-main">2026年3月25日</span>
-                                    <div class="date-lunar">农历正月廿九</div>
+                                    <div class="date-lunar">农历二月初七</div>
                                 </div>
-                                <div class="history-total">205 元</div>
+                                <div class="history-total">20.5 元</div>
                             </div>
                             <div class="history-body">
-                                <div class="veg-item has-amount">
-                                    <div class="name">🫘 豆角</div>
-                                    <div class="amount">80</div>
+                                <div style="display: flex; gap: 6px;">
+                                    <div class="veg-item has-amount">
+                                        <div class="name">🫘 豆角</div>
+                                        <div class="amount">8.0</div>
+                                    </div>
+                                    <div class="veg-item has-amount">
+                                        <div class="name">🥬 菜心</div>
+                                        <div class="amount">7.5</div>
+                                    </div>
+                                    <div class="veg-item has-amount">
+                                        <div class="name">🥦 白菜</div>
+                                        <div class="amount">5.0</div>
+                                    </div>
                                 </div>
-                                <div class="veg-item has-amount">
-                                    <div class="name">🥬 菜心</div>
-                                    <div class="amount">75</div>
-                                </div>
-                                <div class="veg-item has-amount">
-                                    <div class="name">🥦 白菜</div>
-                                    <div class="amount">50</div>
+                                <div style="display: flex; gap: 6px; justify-content: center;">
+                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                        <div class="name">🥒 瓜软</div>
+                                        <div class="amount">0.0</div>
+                                    </div>
+                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                        <div class="name">🍈 白瓜</div>
+                                        <div class="amount">0.0</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -769,54 +880,72 @@
                         <span>9:41</span>
                         <span>📶 📡 🔋</span>
                     </div>
-                    <div class="app-bar">🫘 豆角</div>
+                    <div style="height: 56px; background: #4CAF50; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: bold;">🫘 豆角</div>
                     
                     <div class="detail-total">
                         <div class="label">本月销售总额</div>
-                        <div class="total">1,285 元</div>
-                        <div class="count">共 12 天有记录</div>
+                        <div class="total">128.5 元</div>
+                        <div class="count">共 12 笔记录</div>
                     </div>
                     
                     <div class="date-tabs">
                         <div class="date-tab active">本月</div>
-                        <div class="date-tab">自定义日期</div>
+                        <div class="date-tab">近一周</div>
+                        <div class="date-tab">上月</div>
                     </div>
                     
                     <div class="detail-list">
-                        <div class="detail-item">
-                            <div class="detail-date">
-                                <div class="main">3月27日</div>
-                                <div class="detail-date .lunar">农历二月初一</div>
+                        <!-- 3月27日 -->
+                        <div class="detail-day-group">
+                            <div class="detail-day-header">
+                                <div>
+                                    <span class="date">3月27日</span>
+                                    <span class="lunar">农历二月初九</span>
+                                </div>
+                                <span class="subtotal">小计 12.5 元</span>
                             </div>
-                            <div class="detail-amount">120 元</div>
+                            <div class="detail-item">
+                                <div class="time">09:30</div>
+                                <div class="amount">12.5 元</div>
+                                <div class="delete-btn">🗑️</div>
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <div class="detail-date">
-                                <div class="main">3月26日</div>
-                                <div class="detail-date .lunar">农历正月三十</div>
+                        
+                        <!-- 3月26日 -->
+                        <div class="detail-day-group">
+                            <div class="detail-day-header">
+                                <div>
+                                    <span class="date">3月26日</span>
+                                    <span class="lunar">农历二月初八</span>
+                                </div>
+                                <span class="subtotal">小计 17.5 元</span>
                             </div>
-                            <div class="detail-amount">95 元</div>
+                            <div class="detail-item">
+                                <div class="time">14:20</div>
+                                <div class="amount">9.5 元</div>
+                                <div class="delete-btn">🗑️</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="time">10:15</div>
+                                <div class="amount">8.0 元</div>
+                                <div class="delete-btn">🗑️</div>
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <div class="detail-date">
-                                <div class="main">3月25日</div>
-                                <div class="detail-date .lunar">农历正月廿九</div>
+                        
+                        <!-- 3月25日 -->
+                        <div class="detail-day-group">
+                            <div class="detail-day-header">
+                                <div>
+                                    <span class="date">3月25日</span>
+                                    <span class="lunar">农历二月初七</span>
+                                </div>
+                                <span class="subtotal">小计 8.0 元</span>
                             </div>
-                            <div class="detail-amount">80 元</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-date">
-                                <div class="main">3月24日</div>
-                                <div class="detail-date .lunar">农历正月廿八</div>
+                            <div class="detail-item">
+                                <div class="time">11:00</div>
+                                <div class="amount">8.0 元</div>
+                                <div class="delete-btn">🗑️</div>
                             </div>
-                            <div class="detail-amount">110 元</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-date">
-                                <div class="main">3月23日</div>
-                                <div class="detail-date .lunar">农历正月廿七</div>
-                            </div>
-                            <div class="detail-amount">75 元</div>
                         </div>
                     </div>
                     
@@ -844,7 +973,7 @@
             document.querySelectorAll('.veg-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectedVegetable = card.querySelector('.name').textContent;
-            document.querySelector('.input-display .label').textContent = '输入 ' + selectedVegetable + '：';
+            document.querySelector('.input-display .label').textContent = selectedVegetable + '：';
             currentValue = '0';
             document.getElementById('display').textContent = '0 元';
         }

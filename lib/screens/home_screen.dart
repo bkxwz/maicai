@@ -25,11 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 5个菜品
   final List<Map<String, String>> _vegetables = [
-    {'name': '豆角', 'emoji': '🫘'},
+    {'name': '豆角', 'emoji': '🥬'},
     {'name': '菜心', 'emoji': '🥬'},
-    {'name': '白菜', 'emoji': '🥦'},
+    {'name': '白菜', 'emoji': '🥬'},
     {'name': '瓜软', 'emoji': '🥒'},
-    {'name': '白瓜', 'emoji': '🍈'},
+    {'name': '白瓜', 'emoji': '🫛'},
   ];
 
   @override
