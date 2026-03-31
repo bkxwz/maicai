@@ -373,6 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // 圆形图片
                   Container(
@@ -401,6 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 2),
                   Text(
                     name,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -416,6 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: Text(
                       '${amount.toStringAsFixed(1)}',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
