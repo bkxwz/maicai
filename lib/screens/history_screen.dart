@@ -296,9 +296,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               child: ClipOval(
-                child: Image.asset(
-                  'assets/images/${imageName}_80.png',
-                  fit: BoxFit.cover,
+                child: Container(
+                  color: Colors.white,
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'assets/images/${imageName}_80.png',
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),

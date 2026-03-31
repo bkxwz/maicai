@@ -84,14 +84,17 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     final transactions = await getAllTransactions();
     int count = 0;
+    final baseTimestamp = DateTime.now().millisecondsSinceEpoch;
     
     for (var item in jsonList) {
       try {
+        final ts = item['timestamp'] as int? ?? baseTimestamp + count;
         final transaction = Transaction(
+          id: '${ts}_$count',
           date: item['date'] as String,
           vegetable: item['vegetable'] as String,
           amount: (item['amount'] as num).toDouble(),
-          timestamp: item['timestamp'] as int? ?? DateTime.now().millisecondsSinceEpoch + count,
+          timestamp: ts,
         );
         transactions.add(transaction);
         count++;

@@ -386,9 +386,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/${imageName}_80.png',
-                        fit: BoxFit.cover,
+                      child: Container(
+                        color: Colors.white,
+                        alignment: Alignment.center,
+                        child: Image.asset(
+                          'assets/images/${imageName}_80.png',
+                          width: 44,
+                          height: 44,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
