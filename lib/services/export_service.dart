@@ -119,4 +119,25 @@ class ExportService {
     final summary = await generateSummary();
     await Share.share(summary, subject: '卖菜记账统计');
   }
+
+  /// 分享数据 - 纯JSON格式（可导入）
+  static Future<void> shareJson() async {
+    final transactions = await StorageService.getAllTransactions();
+    
+    if (transactions.isEmpty) {
+      throw Exception('暂无记录可导出');
+    }
+
+    // 生成纯JSON数组，无额外文字
+    final jsonStr = jsonEncode(transactions.map((t) => t.toJson()).toList());
+    final directory = await getTemporaryDirectory();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final file = File('${directory.path}/卖菜记账_$timestamp.json');
+    await file.writeAsString(jsonStr, encoding: utf8);
+
+    await Share.shareXFiles(
+      [XFile(file.path, mimeType: 'application/json')],
+      text: '卖菜记账数据',
+    );
+  }
 }

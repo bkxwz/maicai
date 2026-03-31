@@ -25,11 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 5个菜品
   final List<Map<String, String>> _vegetables = [
-    {'name': '豆角', 'emoji': '🥬'},
-    {'name': '菜心', 'emoji': '🥬'},
-    {'name': '白菜', 'emoji': '🥬'},
-    {'name': '瓜软', 'emoji': '🥒'},
-    {'name': '白瓜', 'emoji': '🫛'},
+    {'name': '豆角', 'image': 'doujiao'},
+    {'name': '菜心', 'image': 'caixin'},
+    {'name': '白菜', 'image': 'baicai'},
+    {'name': '瓜软', 'image': 'guaruan'},
+    {'name': '白瓜', 'image': 'baigua'},
   ];
 
   @override
@@ -204,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   _buildTopBarItem(Icons.share, '分享', () async {
                     try {
-                      await ExportService.shareSummary();
+                      await ExportService.shareJson();
                     } catch (e) {
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -343,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCompactVegetableCard(Map<String, String> v) {
     final name = v['name']!;
-    final emoji = v['emoji']!;
+    final imageName = v['image']!;
     final amount = _getVegetableAmount(name);
     final isSelected = _selectedVegetable == name;
     
@@ -352,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () => _selectVegetable(name),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 3),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
           decoration: BoxDecoration(
             color: isSelected ? Colors.green.shade50 : Colors.white,
             borderRadius: BorderRadius.circular(10),
@@ -374,7 +374,24 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(emoji, style: const TextStyle(fontSize: 24)),
+                  // 圆形图片
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected ? Colors.green : Colors.grey.shade300,
+                        width: 2,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/${imageName}_80.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   Text(
                     name,

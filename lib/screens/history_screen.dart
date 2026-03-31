@@ -249,21 +249,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   // 第一行：3个菜品
                   Row(
                     children: [
-                      _buildVegetableItem('🥬 豆角', record.doubang),
+                      _buildVegetableItem('豆角', 'doujiao', record.doubang),
                       const SizedBox(width: 6),
-                      _buildVegetableItem('🥬 菜心', record.caixin),
+                      _buildVegetableItem('菜心', 'caixin', record.caixin),
                       const SizedBox(width: 6),
-                      _buildVegetableItem('🥬 白菜', record.baicai),
+                      _buildVegetableItem('白菜', 'baicai', record.baicai),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  // 第二行：2个菜品
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildVegetableItem('🥒 瓜软', record.guaruan),
+                      _buildVegetableItem('瓜软', 'guaruan', record.guaruan),
                       const SizedBox(width: 6),
-                      _buildVegetableItem('🫛 白瓜', record.baigua),
+                      _buildVegetableItem('白瓜', 'baigua', record.baigua),
                     ],
                   ),
                 ],
@@ -275,30 +274,48 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildVegetableItem(String label, double amount) {
+  Widget _buildVegetableItem(String name, String imageName, double amount) {
     final hasAmount = amount > 0;
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
         decoration: BoxDecoration(
           color: hasAmount ? Colors.green.shade50 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: hasAmount ? FontWeight.bold : FontWeight.normal,
-                color: hasAmount ? Colors.green.shade700 : Colors.grey,
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: hasAmount ? Colors.green.shade300 : Colors.grey.shade300,
+                  width: 1.5,
+                ),
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/${imageName}_80.png',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 2),
             Text(
+              name,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: hasAmount ? FontWeight.bold : FontWeight.normal,
+                color: hasAmount ? Colors.green.shade700 : Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
               '${amount.toStringAsFixed(1)}',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.w900,
                 color: hasAmount ? Colors.green : Colors.grey,
               ),

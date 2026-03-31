@@ -20,20 +20,20 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
   double _total = 0;
   bool _isLoading = true;
 
-  String get _emoji {
+  String get _vegetableImage {
     switch (widget.vegetable) {
       case '豆角':
-        return '🫘';
+        return 'doujiao';
       case '菜心':
-        return '🥬';
+        return 'caixin';
       case '白菜':
-        return '🥦';
+        return 'baicai';
       case '瓜软':
-        return '🥒';
+        return 'guaruan';
       case '白瓜':
-        return '🍈';
+        return 'baigua';
       default:
-        return '🥬';
+        return 'caixin';
     }
   }
 
@@ -198,7 +198,27 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('$_emoji ${widget.vegetable}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/${_vegetableImage}_80.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(widget.vegetable, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+          ],
+        ),
         centerTitle: true,
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
