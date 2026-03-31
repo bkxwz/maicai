@@ -27,9 +27,14 @@ class SoundService {
     } catch (_) {}
   }
 
-  /// 错误提示音
+  /// 错误提示音 - 强烈震动区分
   static Future<void> playError() async {
     try {
+      // 连续三次重击，与成功反馈区分
+      HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 60));
+      HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 60));
       HapticFeedback.heavyImpact();
     } catch (_) {}
   }
