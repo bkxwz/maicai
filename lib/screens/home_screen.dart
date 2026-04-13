@@ -219,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       MaterialPageRoute(builder: (context) => const ImportScreen()),
                     );
                   }),
-                  _buildTopBarItem(Icons.history, '历史', () {
+                  _buildTopBarItem(Icons.analytics, '总收入', () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const HistoryScreen()),
@@ -248,22 +248,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '今日合计 ${total.toStringAsFixed(1)} 元',
+                      '今日收入 ${total.toStringAsFixed(1)} 元',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.green),
                     ),
                   ),
                 ],
-              ),
-            ),
-            
-            // 农历
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(left: 12, bottom: 6),
-              color: Colors.green,
-              child: Text(
-                LunarHelper.getLunarDate(DateTime.now()),
-                style: TextStyle(fontSize: 12, color: Colors.green.shade100),
               ),
             ),
             
