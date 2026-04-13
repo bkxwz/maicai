@@ -43,7 +43,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.li_cal"
+        applicationId "com.example.li_cal.v${flutterVersionCode}"
         minSdk 21
         targetSdk 34
         versionCode flutterVersionCode.toInteger()

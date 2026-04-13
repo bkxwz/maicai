@@ -368,13 +368,30 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Column(
+          child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // 详情按钮 - 独立一行在最上面
+                  GestureDetector(
+                    onTap: () => _navigateToDetail(name),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '详情',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.blue.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
                   // 圆形图片
                   Container(
                     width: 48,
@@ -428,30 +445,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              // 详情按钮 - 文字放在图片上方
-              Positioned(
-                top: -2,
-                right: 2,
-                child: GestureDetector(
-                  onTap: () => _navigateToDetail(name),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      '详情',
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: Colors.blue.shade700,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

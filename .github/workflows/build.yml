@@ -26,6 +26,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       
+      - name: Set version code
+        run: |
+          VERSION_CODE=$(git rev-list --count HEAD)
+          echo "flutter.versionCode=$VERSION_CODE" >> $GITHUB_ENV
+          echo "flutter.versionName=1.0.$VERSION_CODE" >> $GITHUB_ENV
+          echo "flutter.versionCode=$VERSION_CODE" > android/local.properties
+          cat android/local.properties
+       
       - name: Build APK
         run: flutter build apk --release
       
