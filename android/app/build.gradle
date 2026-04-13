@@ -26,7 +26,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    namespace "com.example.li_cal"
+    namespace "com.lijia.guacaibao"
     compileSdk 34
 
     compileOptions {
@@ -43,7 +43,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.lijia.guacaibao.v${flutterVersionCode}"
+        applicationId "com.lijia.guacaibao"
         minSdk 21
         targetSdk 34
         versionCode flutterVersionCode.toInteger()

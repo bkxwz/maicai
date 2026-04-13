@@ -33,7 +33,9 @@ jobs:
           echo "flutter.versionName=1.0.$VERSION_CODE" >> $GITHUB_ENV
           echo "flutter.versionCode=$VERSION_CODE" > android/local.properties
           echo "flutter.versionName=1.0.$VERSION_CODE" >> android/local.properties
+          sed -i "s/version: 1.0.0+[0-9]*/version: 1.0.0+$VERSION_CODE/" pubspec.yaml
           cat android/local.properties
+          cat pubspec.yaml | head -5
        
       - name: Build APK
         run: flutter build apk --release
