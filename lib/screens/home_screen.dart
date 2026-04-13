@@ -428,27 +428,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              // 详情按钮 - 悬浮在图片上方
+              // 详情按钮 - 文字放在图片上方
               Positioned(
-                top: 2,
+                top: -2,
                 right: 2,
                 child: GestureDetector(
                   onTap: () => _navigateToDetail(name),
                   child: Container(
-                    width: 26,
-                    height: 26,
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                     decoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                      color: Colors.blue.shade100,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Icon(Icons.bar_chart, size: 16, color: Colors.white),
+                    child: Text(
+                      '详情',
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
                   ),
                 ),
               ),
