@@ -32,7 +32,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    namespace "com.lijia.guacaibao"
+    namespace "com.example.li_cal"
     compileSdk 34
 
     compileOptions {
