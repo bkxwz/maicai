@@ -248,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '今日收入 ${total.toStringAsFixed(0)} 元',
+                      '今日 ${total.toStringAsFixed(0)} 元',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.green),
                     ),
                   ),
