@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/record.dart';
 import 'storage_service.dart';
+import '../utils/format.dart';
 
 class ExportService {
   /// 导出所有记录为CSV格式并分享
@@ -20,7 +21,7 @@ class ExportService {
     
     for (var record in records) {
       buffer.writeln(
-        '${record.date},${record.doubang.toStringAsFixed(0)},${record.caixin.toStringAsFixed(0)},${record.baicai.toStringAsFixed(0)},${record.guaruan.toStringAsFixed(0)},${record.baigua.toStringAsFixed(0)},${record.total.toStringAsFixed(0)}'
+        '${record.date},${formatAmount(record.doubang)},${formatAmount(record.caixin)},${formatAmount(record.baicai)},${formatAmount(record.guaruan)},${formatAmount(record.baigua)},${formatAmount(record.total)}'
       );
     }
 
@@ -93,13 +94,13 @@ class ExportService {
     final grandTotal = totalDoubang + totalCaixin + totalBaicai + totalGuaruan + totalBaigua;
     
     buffer.writeln('📅 共记录 ${records.length} 天');
-    buffer.writeln('💰 累计收入：${grandTotal.toStringAsFixed(0)} 元');
+    buffer.writeln('💰 累计收入：${formatAmount(grandTotal)} 元');
     buffer.writeln('');
-    buffer.writeln('🫘 豆角：${totalDoubang.toStringAsFixed(0)} 元');
-    buffer.writeln('🥬 菜心：${totalCaixin.toStringAsFixed(0)} 元');
-    buffer.writeln('🥦 白菜：${totalBaicai.toStringAsFixed(0)} 元');
-    buffer.writeln('🥒 瓜软：${totalGuaruan.toStringAsFixed(0)} 元');
-    buffer.writeln('🍈 白瓜：${totalBaigua.toStringAsFixed(0)} 元');
+    buffer.writeln('🫘 豆角：${formatAmount(totalDoubang)} 元');
+    buffer.writeln('🥬 菜心：${formatAmount(totalCaixin)} 元');
+    buffer.writeln('🥦 白菜：${formatAmount(totalBaicai)} 元');
+    buffer.writeln('🥒 瓜软：${formatAmount(totalGuaruan)} 元');
+    buffer.writeln('🍈 白瓜：${formatAmount(totalBaigua)} 元');
     buffer.writeln('');
     buffer.writeln('━━━━━━━━━━━━━━━━━━');
     
@@ -108,7 +109,7 @@ class ExportService {
     final recentRecords = records.take(7).toList();
     for (var record in recentRecords) {
       final date = DateTime.parse(record.date);
-      buffer.writeln('${date.month}/${date.day}：${record.total.toStringAsFixed(0)}元');
+      buffer.writeln('${date.month}/${date.day}：${formatAmount(record.total)}元');
     }
     
     return buffer.toString();

@@ -6,6 +6,7 @@ import '../services/sound_service.dart';
 import '../services/export_service.dart';
 import '../widgets/numpad.dart';
 import '../utils/lunar_helper.dart';
+import '../utils/format.dart';
 import 'vegetable_detail.dart';
 import 'history_screen.dart';
 import 'import_screen.dart';
@@ -153,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('✓ $vegetable +${amount.toStringAsFixed(0)} 元', style: const TextStyle(fontSize: 18)),
+          content: Text('✓ $vegetable +${formatAmount(amount)} 元', style: const TextStyle(fontSize: 18)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 1),
         ),
@@ -248,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '今日 ${total.toStringAsFixed(0)} 元',
+                      '今日 ${formatAmount(total)} 元',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.green),
                     ),
                   ),
@@ -423,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      '${amount.toStringAsFixed(0)}',
+                      '${formatAmount(amount)}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,

@@ -3,6 +3,7 @@ import '../models/record.dart';
 import '../services/storage_service.dart';
 import '../services/export_service.dart';
 import '../utils/lunar_helper.dart';
+import '../utils/format.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -123,7 +124,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
-                          '${_grandTotal.toStringAsFixed(0)} 元',
+                          '${formatAmount(_grandTotal)} 元',
                           style: const TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.w900,
@@ -261,7 +262,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   Container(
                     child: Text(
-                      '${record.total.toStringAsFixed(0)} 元',
+                      '${formatAmount(record.total)} 元',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -323,7 +324,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         const SizedBox(height: 2),
         Text(
-          '${amount.toStringAsFixed(0)}',
+          '${formatAmount(amount)}',
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
@@ -379,7 +380,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             const SizedBox(height: 1),
             Text(
-              '${amount.toStringAsFixed(0)}',
+              '${formatAmount(amount)}',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w900,

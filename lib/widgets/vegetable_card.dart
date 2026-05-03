@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/format.dart';
 
 class VegetableCard extends StatelessWidget {
   final String name;
@@ -78,7 +79,7 @@ class VegetableCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '${amount.toStringAsFixed(0)} 元',
+                '${formatAmount(amount)} 元',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
