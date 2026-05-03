@@ -55,12 +55,6 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-        }
-    }
     
     signingConfigs {
         release {
@@ -74,6 +68,12 @@ android {
             storePassword System.getenv("KEYSTORE_PASSWORD") ?: "android"
             keyAlias System.getenv("KEY_ALIAS") ?: "guacaibao"
             keyPassword System.getenv("KEY_PASSWORD") ?: "android"
+        }
+    }
+    
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
         }
     }
 }
