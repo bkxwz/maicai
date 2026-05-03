@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('✓ $vegetable +${amount.toStringAsFixed(1)} 元', style: const TextStyle(fontSize: 18)),
+          content: Text('✓ $vegetable +${amount.toStringAsFixed(0)} 元', style: const TextStyle(fontSize: 18)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 1),
         ),
@@ -248,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '今日收入 ${total.toStringAsFixed(1)} 元',
+                      '今日收入 ${total.toStringAsFixed(0)} 元',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.green),
                     ),
                   ),
@@ -423,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      '${amount.toStringAsFixed(1)}',
+                      '${amount.toStringAsFixed(0)}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,

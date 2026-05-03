@@ -20,7 +20,7 @@ class ExportService {
     
     for (var record in records) {
       buffer.writeln(
-        '${record.date},${record.doubang.toStringAsFixed(1)},${record.caixin.toStringAsFixed(1)},${record.baicai.toStringAsFixed(1)},${record.guaruan.toStringAsFixed(1)},${record.baigua.toStringAsFixed(1)},${record.total.toStringAsFixed(1)}'
+        '${record.date},${record.doubang.toStringAsFixed(0)},${record.caixin.toStringAsFixed(0)},${record.baicai.toStringAsFixed(0)},${record.guaruan.toStringAsFixed(0)},${record.baigua.toStringAsFixed(0)},${record.total.toStringAsFixed(0)}'
       );
     }
 
@@ -93,13 +93,13 @@ class ExportService {
     final grandTotal = totalDoubang + totalCaixin + totalBaicai + totalGuaruan + totalBaigua;
     
     buffer.writeln('📅 共记录 ${records.length} 天');
-    buffer.writeln('💰 累计收入：${grandTotal.toStringAsFixed(1)} 元');
+    buffer.writeln('💰 累计收入：${grandTotal.toStringAsFixed(0)} 元');
     buffer.writeln('');
-    buffer.writeln('🫘 豆角：${totalDoubang.toStringAsFixed(1)} 元');
-    buffer.writeln('🥬 菜心：${totalCaixin.toStringAsFixed(1)} 元');
-    buffer.writeln('🥦 白菜：${totalBaicai.toStringAsFixed(1)} 元');
-    buffer.writeln('🥒 瓜软：${totalGuaruan.toStringAsFixed(1)} 元');
-    buffer.writeln('🍈 白瓜：${totalBaigua.toStringAsFixed(1)} 元');
+    buffer.writeln('🫘 豆角：${totalDoubang.toStringAsFixed(0)} 元');
+    buffer.writeln('🥬 菜心：${totalCaixin.toStringAsFixed(0)} 元');
+    buffer.writeln('🥦 白菜：${totalBaicai.toStringAsFixed(0)} 元');
+    buffer.writeln('🥒 瓜软：${totalGuaruan.toStringAsFixed(0)} 元');
+    buffer.writeln('🍈 白瓜：${totalBaigua.toStringAsFixed(0)} 元');
     buffer.writeln('');
     buffer.writeln('━━━━━━━━━━━━━━━━━━');
     
@@ -108,7 +108,7 @@ class ExportService {
     final recentRecords = records.take(7).toList();
     for (var record in recentRecords) {
       final date = DateTime.parse(record.date);
-      buffer.writeln('${date.month}/${date.day}：${record.total.toStringAsFixed(1)}元');
+      buffer.writeln('${date.month}/${date.day}：${record.total.toStringAsFixed(0)}元');
     }
     
     return buffer.toString();

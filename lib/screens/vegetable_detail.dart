@@ -135,7 +135,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
       builder: (context) => AlertDialog(
         title: const Text('确认删除', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         content: Text(
-          '确定要删除这笔记录吗？\n\n${transaction.vegetable}：${transaction.amount.toStringAsFixed(1)} 元',
+          '确定要删除这笔记录吗？\n\n${transaction.vegetable}：${transaction.amount.toStringAsFixed(0)} 元',
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
@@ -245,7 +245,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
-                          '${_total.toStringAsFixed(1)} 元',
+                          '${_total.toStringAsFixed(0)} 元',
                           style: const TextStyle(
                             fontSize: 38,
                             fontWeight: FontWeight.w900,
@@ -353,7 +353,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
               ),
               const Spacer(),
               Text(
-                '小计 ${dayTotal.toStringAsFixed(1)} 元',
+                '小计 ${dayTotal.toStringAsFixed(0)} 元',
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.green),
               ),
             ],
@@ -391,7 +391,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                 // 金额
                 Expanded(
                   child: Text(
-                    '${t.amount.toStringAsFixed(1)} 元',
+                    '${t.amount.toStringAsFixed(0)} 元',
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

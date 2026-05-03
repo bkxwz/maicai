@@ -123,7 +123,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
-                          '${_grandTotal.toStringAsFixed(1)} 元',
+                          '${_grandTotal.toStringAsFixed(0)} 元',
                           style: const TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.w900,
@@ -261,7 +261,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   Container(
                     child: Text(
-                      '${record.total.toStringAsFixed(1)} 元',
+                      '${record.total.toStringAsFixed(0)} 元',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -323,7 +323,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         const SizedBox(height: 2),
         Text(
-          '${amount.toStringAsFixed(1)}',
+          '${amount.toStringAsFixed(0)}',
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
@@ -379,7 +379,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             const SizedBox(height: 1),
             Text(
-              '${amount.toStringAsFixed(1)}',
+              '${amount.toStringAsFixed(0)}',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w900,

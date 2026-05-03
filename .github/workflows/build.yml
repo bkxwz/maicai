@@ -29,13 +29,10 @@ jobs:
       - name: Set version code
         run: |
           VERSION_CODE=$(git rev-list --count HEAD)
-          echo "flutter.versionCode=$VERSION_CODE" >> $GITHUB_ENV
-          echo "flutter.versionName=1.0.$VERSION_CODE" >> $GITHUB_ENV
+          VERSION_NAME=$(grep "^version:" pubspec.yaml | awk '{print $2}')
           echo "flutter.versionCode=$VERSION_CODE" > android/local.properties
-          echo "flutter.versionName=1.0.$VERSION_CODE" >> android/local.properties
-          sed -i "s/version: 1.0.0+[0-9]*/version: 1.0.0+$VERSION_CODE/" pubspec.yaml
+          echo "flutter.versionName=$VERSION_NAME" >> android/local.properties
           cat android/local.properties
-          cat pubspec.yaml | head -5
        
       - name: Build APK
         run: flutter build apk --release
