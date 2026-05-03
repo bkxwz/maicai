@@ -15,6 +15,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   List<DailyRecord> _records = [];
   double _grandTotal = 0;
   bool _isLoading = true;
+  double _totalDoujiao = 0;
+  double _totalCaixin = 0;
+  double _totalBaicai = 0;
+  double _totalGuaruan = 0;
+  double _totalBaigua = 0;
 
   @override
   void initState() {
@@ -25,13 +30,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _loadRecords() async {
     final records = await StorageService.getAllRecords();
     double total = 0;
+    double totalDoujiao = 0;
+    double totalCaixin = 0;
+    double totalBaicai = 0;
+    double totalGuaruan = 0;
+    double totalBaigua = 0;
+    
     for (var record in records) {
       total += record.total;
+      totalDoujiao += record.doubang;
+      totalCaixin += record.caixin;
+      totalBaicai += record.baicai;
+      totalGuaruan += record.guaruan;
+      totalBaigua += record.baigua;
     }
     
     setState(() {
       _records = records;
       _grandTotal = total;
+      _totalDoujiao = totalDoujiao;
+      _totalCaixin = totalCaixin;
+      _totalBaicai = totalBaicai;
+      _totalGuaruan = totalGuaruan;
+      _totalBaigua = totalBaigua;
       _isLoading = false;
     });
   }
@@ -114,6 +135,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       Text(
                         '共 ${_records.length} 天有记录',
                         style: const TextStyle(fontSize: 14, color: Colors.white70),
+                      ),
+                      const SizedBox(height: 12),
+                      // 各菜品总收入
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildTotalItem('豆角', _totalDoujiao),
+                            _buildTotalItem('菜心', _totalCaixin),
+                            _buildTotalItem('白菜', _totalBaicai),
+                            _buildTotalItem('瓜软', _totalGuaruan),
+                            _buildTotalItem('白瓜', _totalBaigua),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -271,6 +311,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTotalItem(String name, double amount) {
+    return Column(
+      children: [
+        Text(
+          name,
+          style: const TextStyle(fontSize: 11, color: Colors.white70),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          '${amount.toStringAsFixed(1)}',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+          ),
+        ),
+      ],
     );
   }
 
