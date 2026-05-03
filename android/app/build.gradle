@@ -58,13 +58,13 @@ android {
     
     signingConfigs {
         release {
-            storeFile file("guacaibao.keystore")
+            storeFile file("${projectDir}/guacaibao.keystore")
             storePassword System.getenv("KEYSTORE_PASSWORD") ?: "android"
             keyAlias System.getenv("KEY_ALIAS") ?: "guacaibao"
             keyPassword System.getenv("KEY_PASSWORD") ?: "android"
         }
         debug {
-            storeFile file("guacaibao.keystore")
+            storeFile file("${projectDir}/guacaibao.keystore")
             storePassword System.getenv("KEYSTORE_PASSWORD") ?: "android"
             keyAlias System.getenv("KEY_ALIAS") ?: "guacaibao"
             keyPassword System.getenv("KEY_PASSWORD") ?: "android"
