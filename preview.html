@@ -59,8 +59,7 @@
             border: 2px solid rgba(255,255,255,0.4);
             border-radius: 30px;
             color: white;
-            font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -71,16 +70,27 @@
         
         .nav-tab.active {
             background: white;
-            color: #667eea;
+            color: #4CAF50;
             border-color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .phone-label {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 10px;
+            font-size: 15px;
         }
         
         .phone {
             width: 390px;
-            background: #f5f5f5;
+            height: 780px;
+            background: white;
             border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 8px solid #1a1a1a;
+            overflow-y: auto;
             position: relative;
         }
         
@@ -171,13 +181,6 @@
             font-weight: 900;
         }
         
-        .date-header .lunar {
-            font-size: 12px;
-            color: rgba(255,255,255,0.8);
-            padding: 0 12px 6px;
-            background: #4CAF50;
-        }
-        
         .vegetable-row {
             display: flex;
             padding: 6px 8px;
@@ -189,7 +192,7 @@
             flex: 1;
             background: white;
             border-radius: 10px;
-            padding: 8px 2px;
+            padding: 6px 2px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
@@ -209,24 +212,61 @@
             box-shadow: 0 4px 10px rgba(76,175,80,0.3);
         }
         
+        .veg-card .detail-btn {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #bbdefb;
+            color: #1565c0;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .veg-card .detail-btn:hover {
+            background: #90caf9;
+        }
+        
         .veg-card .emoji {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 24px;
+            margin: 12px auto 2px;
+            background: white;
+        }
+        
+        .veg-card.selected .emoji {
+            border-color: #4CAF50;
         }
         
         .veg-card .name {
             font-size: 11px;
             font-weight: bold;
-            color: #333;
-            margin: 2px 0;
+            color: #212121;
+        }
+        
+        .veg-card.selected .name {
+            color: #2e7d32;
         }
         
         .veg-card .amount {
-            background: #f5f5f5;
-            padding: 2px 4px;
-            border-radius: 4px;
+            display: inline-block;
+            margin-top: 3px;
             font-size: 12px;
             font-weight: 900;
-            color: #333;
+            color: #212121;
+            background: #f5f5f5;
+            border-radius: 4px;
+            padding: 2px 6px;
         }
         
         .veg-card.selected .amount {
@@ -234,55 +274,40 @@
             color: white;
         }
         
-        .veg-card .detail-btn {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 18px;
-            height: 18px;
-            background: #2196F3;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: white;
-        }
-        
         .input-display {
-            padding: 6px 12px;
             background: white;
+            padding: 6px 12px;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             gap: 6px;
         }
         
         .input-display .label {
             font-size: 14px;
-            color: #666;
-            font-weight: 500;
+            color: #757575;
         }
         
         .input-display .value-box {
-            background: #f0fff0;
-            border: 2px solid #4CAF50;
-            border-radius: 6px;
-            padding: 6px 16px;
             font-size: 22px;
             font-weight: 900;
             color: #4CAF50;
+            background: #f0fff0;
+            border: 2px solid #4CAF50;
+            border-radius: 6px;
+            padding: 4px 16px;
+            min-width: 120px;
+            text-align: center;
         }
         
         .numpad {
             padding: 8px 12px;
-            background: #e8e8e8;
-            flex: 1;
+            background: white;
         }
         
         .numpad-row {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             margin-bottom: 6px;
         }
         
@@ -290,34 +315,30 @@
             flex: 1;
             height: 56px;
             background: white;
+            border: 2px solid #e0e0e0;
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 34px;
+            font-size: 30px;
             font-weight: 900;
-            color: #333;
+            color: #212121;
             cursor: pointer;
-            box-shadow: 0 3px 0 #ddd, 0 4px 10px rgba(0,0,0,0.1);
-            border: none;
-            transition: all 0.1s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+            transition: all 0.15s;
             user-select: none;
         }
         
-        .num-key:hover {
-            background: #f8f8f8;
-        }
-        
         .num-key:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #ddd, 0 2px 5px rgba(0,0,0,0.1);
+            transform: scale(0.95);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .num-key.clear {
-            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            background: #FF9800;
+            border-color: #FF9800;
             color: white;
             font-size: 22px;
-            box-shadow: 0 3px 0 #E65100, 0 4px 10px rgba(255,152,0,0.4);
         }
         
         .num-key.dot {
@@ -325,30 +346,55 @@
         }
         
         .num-key.confirm {
-            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+            background: #4CAF50;
+            border-color: #4CAF50;
             color: white;
-            font-size: 22px;
-            box-shadow: 0 3px 0 #1B5E20, 0 4px 10px rgba(76,175,80,0.4);
+            font-size: 24px;
+            box-shadow: 0 3px 8px rgba(76,175,80,0.4);
         }
         
-        /* 历史记录页面 */
-        .grand-total {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            padding: 24px;
-            text-align: center;
+        /* 历史记录页 */
+        .app-bar {
+            height: 56px;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
+            font-size: 22px;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .app-bar .share-btn {
+            position: absolute;
+            right: 8px;
+            font-size: 26px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .grand-total {
+            background: #4CAF50;
+            padding: 20px;
+            text-align: center;
         }
         
         .grand-total .label {
             font-size: 18px;
-            color: rgba(255,255,255,0.85);
-            margin-bottom: 8px;
+            color: rgba(255,255,255,0.8);
         }
         
         .grand-total .total {
-            font-size: 44px;
+            font-size: 40px;
             font-weight: 900;
-            margin-bottom: 6px;
+            color: white;
+            background: white;
+            color: #4CAF50;
+            display: inline-block;
+            padding: 8px 32px;
+            border-radius: 30px;
+            margin: 8px 0 4px;
         }
         
         .grand-total .count {
@@ -356,10 +402,34 @@
             color: rgba(255,255,255,0.8);
         }
         
+        .veg-total-row {
+            display: flex;
+            justify-content: space-evenly;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 8px 6px;
+            margin-top: 12px;
+        }
+        
+        .veg-total-item {
+            text-align: center;
+        }
+        
+        .veg-total-item .name {
+            font-size: 11px;
+            color: rgba(255,255,255,0.75);
+        }
+        
+        .veg-total-item .amount {
+            font-size: 14px;
+            font-weight: 900;
+            color: white;
+        }
+        
         .history-list {
             padding: 16px;
-            max-height: 600px;
-            overflow-y: auto;
+            background: #f5f5f5;
+            flex: 1;
         }
         
         .history-card {
@@ -367,59 +437,44 @@
             border-radius: 16px;
             margin-bottom: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .history-card.has-record {
-            border-left: 4px solid #4CAF50;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         
         .history-card.is-today {
-            border: 2px solid #4CAF50;
+            border: 3px solid #4CAF50;
         }
         
         .history-header {
-            padding: 14px 16px;
+            background: #e8f5e9;
+            padding: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .history-card.has-record .history-header {
-            background: linear-gradient(135deg, #f0fff0 0%, #e8f5e9 100%);
-        }
-        
-        .history-card:not(.has-record) .history-header {
-            background: #fafafa;
-        }
-        
         .history-card.is-today .history-header {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: #4CAF50;
         }
         
         .history-date {
-            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .today-badge {
-            display: inline-block;
             background: white;
             color: #4CAF50;
-            padding: 2px 10px;
-            border-radius: 12px;
             font-size: 12px;
             font-weight: bold;
-            margin-right: 8px;
-        }
-        
-        .history-card.is-today .today-badge {
-            background: rgba(255,255,255,0.9);
+            padding: 2px 8px;
+            border-radius: 12px;
         }
         
         .date-main {
             font-size: 16px;
             font-weight: bold;
-            color: #333;
+            color: #2e7d32;
         }
         
         .history-card.is-today .date-main {
@@ -427,31 +482,26 @@
         }
         
         .date-lunar {
-            font-size: 13px;
-            color: #999;
-            margin-top: 2px;
+            font-size: 12px;
+            color: #9e9e9e;
         }
         
         .history-card.is-today .date-lunar {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.85);
         }
         
         .history-total {
-            padding: 8px 16px;
-            border-radius: 10px;
             font-size: 18px;
             font-weight: 900;
-            background: #4CAF50;
+            color: #2e7d32;
+        }
+        
+        .history-card.is-today .history-total {
             color: white;
         }
         
-        .history-card:not(.has-record) .history-total {
-            background: #e0e0e0;
-            color: #999;
-        }
-        
         .history-body {
-            padding: 14px;
+            padding: 10px 14px 14px;
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -459,54 +509,70 @@
         
         .veg-item {
             flex: 1;
-            padding: 8px 4px;
+            background: #f5f5f5;
             border-radius: 8px;
+            padding: 6px 4px;
             text-align: center;
         }
         
         .veg-item.has-amount {
-            background: linear-gradient(135deg, #f0fff0 0%, #e8f5e9 100%);
-            border: 1px solid #c8e6c9;
-        }
-        
-        .veg-item.no-amount {
-            background: #f5f5f5;
+            background: #e8f5e9;
         }
         
         .veg-item .name {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 4px;
+            font-size: 10px;
+            color: #9e9e9e;
+        }
+        
+        .veg-item.has-amount .name {
+            color: #2e7d32;
+            font-weight: bold;
         }
         
         .veg-item .amount {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 900;
+            color: #9e9e9e;
+        }
+        
+        .veg-item.has-amount .amount {
             color: #4CAF50;
         }
         
-        .veg-item.no-amount .amount {
-            color: #bbb;
+        .back-btn {
+            text-align: center;
+            padding: 16px;
+            background: #f5f5f5;
         }
         
-        /* 菜品详情页面 */
+        .back-btn a {
+            color: #4CAF50;
+            font-size: 15px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* 菜品详情页 */
         .detail-total {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            padding: 24px;
+            background: #4CAF50;
+            padding: 20px;
             text-align: center;
-            color: white;
         }
         
         .detail-total .label {
             font-size: 18px;
-            color: rgba(255,255,255,0.85);
-            margin-bottom: 8px;
+            color: rgba(255,255,255,0.8);
         }
         
         .detail-total .total {
-            font-size: 44px;
+            font-size: 38px;
             font-weight: 900;
-            margin-bottom: 6px;
+            color: #4CAF50;
+            background: white;
+            display: inline-block;
+            padding: 10px 32px;
+            border-radius: 30px;
+            margin: 8px 0 4px;
         }
         
         .detail-total .count {
@@ -516,23 +582,21 @@
         
         .date-tabs {
             display: flex;
-            padding: 12px;
             gap: 8px;
+            padding: 12px;
             background: #f5f5f5;
-            flex-wrap: wrap;
         }
         
         .date-tab {
             flex: 1;
-            min-width: 80px;
             padding: 10px;
             text-align: center;
-            border-radius: 8px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
             font-size: 14px;
             font-weight: bold;
-            background: white;
             color: #4CAF50;
-            border: 2px solid #4CAF50;
+            background: white;
             cursor: pointer;
         }
         
@@ -541,22 +605,30 @@
             color: white;
         }
         
-        .detail-list {
-            padding: 16px;
-            max-height: 500px;
-            overflow-y: auto;
+        .custom-range-btn {
+            margin: 0 12px 12px;
+            padding: 12px;
+            text-align: center;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2e7d32;
+            background: white;
+            cursor: pointer;
+            background: #f5f5f5;
         }
         
-        .detail-day-group {
-            margin-bottom: 16px;
+        .detail-list {
+            padding: 0 16px 16px;
+            background: #f5f5f5;
         }
         
         .detail-day-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            padding: 0 4px;
+            align-items: baseline;
+            padding: 8px 0;
         }
         
         .detail-day-header .date {
@@ -566,8 +638,8 @@
         }
         
         .detail-day-header .lunar {
-            font-size: 12px;
-            color: #999;
+            font-size: 13px;
+            color: #9e9e9e;
             margin-left: 8px;
         }
         
@@ -580,57 +652,116 @@
         .detail-item {
             background: white;
             border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 6px;
+            padding: 14px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            box-shadow: 0 2px 6px rgba(76,175,80,0.08);
+            box-shadow: 0 2px 6px rgba(76,175,80,0.1);
         }
         
         .detail-item .time {
             width: 50px;
             font-size: 12px;
-            color: #999;
+            color: #9e9e9e;
         }
         
         .detail-item .amount {
             flex: 1;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            color: #333;
+            color: #212121;
         }
         
         .detail-item .delete-btn {
-            width: 32px;
-            height: 32px;
+            padding: 8px;
             background: #ffebee;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
-            color: #f44336;
-        }
-        
-        .back-btn {
-            padding: 12px;
-            text-align: center;
-            background: #f5f5f5;
-        }
-        
-        .back-btn a {
-            color: #4CAF50;
-            text-decoration: none;
             font-size: 16px;
         }
         
-        .phone-label {
-            text-align: center;
-            color: white;
+        /* 导入数据页 */
+        .import-body {
+            padding: 20px;
+            background: white;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .import-title {
             font-size: 18px;
             font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            color: #212121;
+        }
+        
+        .import-subtitle {
+            font-size: 14px;
+            color: #757575;
+            margin-top: 6px;
+        }
+        
+        .import-btn {
+            margin-top: 30px;
+            padding: 18px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(76,175,80,0.3);
+        }
+        
+        .import-btn .icon {
+            font-size: 28px;
+        }
+        
+        .import-outline-btn {
+            margin-top: 16px;
+            padding: 16px;
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .import-status {
+            margin-top: 30px;
+            padding: 16px;
+            background: #e8f5e9;
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            color: #2e7d32;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .import-tip {
+            margin-top: auto;
+            padding: 12px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1565c0;
+            font-size: 13px;
+        }
+        
+        .import-tip .icon {
+            font-size: 20px;
         }
     </style>
 </head>
@@ -640,9 +771,10 @@
             <h1>🥬 卖菜记账 App</h1>
             <p>专为老人设计 · 简单易用 · 5个菜品</p>
             <div class="nav-tabs">
-                <div class="nav-tab active" onclick="showScreen('home')">主界面</div>
-                <div class="nav-tab" onclick="showScreen('history')">历史记录</div>
-                <div class="nav-tab" onclick="showScreen('detail')">菜品详情</div>
+                <div class="nav-tab active" onclick="showScreen('home', this)">主界面</div>
+                <div class="nav-tab" onclick="showScreen('history', this)">历史记录</div>
+                <div class="nav-tab" onclick="showScreen('detail', this)">菜品详情</div>
+                <div class="nav-tab" onclick="showScreen('import', this)">导入数据</div>
             </div>
         </div>
         
@@ -656,57 +788,59 @@
                         <span>📶 📡 🔋</span>
                     </div>
                     
-                    <!-- 顶栏：分享 导入 历史 -->
+                    <!-- 顶栏：分享 导入 总收入 -->
                     <div class="top-bar">
-                        <div class="top-btn" onclick="showScreen('history')">
+                        <div class="top-btn">
                             <span class="icon">📤</span>
                             <span class="text">分享</span>
                         </div>
-                        <div class="top-btn">
+                        <div class="top-btn" onclick="showScreen('import', null)">
                             <span class="icon">📥</span>
                             <span class="text">导入</span>
                         </div>
-                        <div class="top-btn" onclick="showScreen('history')">
-                            <span class="icon">📜</span>
-                            <span class="text">历史</span>
+                        <div class="top-btn" onclick="showScreen('history', null)">
+                            <span class="icon">📊</span>
+                            <span class="text">总收入</span>
                         </div>
                     </div>
                     
                     <!-- 日期和今日合计 -->
                     <div class="date-header">
                         <span class="date">3月27日 周五</span>
-                        <span class="total-badge">今日合计 72.3 元</span>
-                    </div>
-                    <div class="date-header">
-                        <span class="lunar">农历二月初九</span>
+                        <span class="total-badge">今日 26.5 元</span>
                     </div>
                     
                     <!-- 5个菜品一行显示 -->
                     <div class="vegetable-row">
                         <div class="veg-card selected" onclick="selectCard(this)">
+                            <div class="detail-btn" onclick="event.stopPropagation(); showScreen('detail', null)">详情</div>
                             <div class="emoji">🫘</div>
                             <div class="name">豆角</div>
                             <div class="amount">12.5</div>
                         </div>
                         <div class="veg-card" onclick="selectCard(this)">
+                            <div class="detail-btn" onclick="event.stopPropagation(); showScreen('detail', null)">详情</div>
                             <div class="emoji">🥬</div>
                             <div class="name">菜心</div>
-                            <div class="amount">8.0</div>
+                            <div class="amount">8</div>
                         </div>
                         <div class="veg-card" onclick="selectCard(this)">
+                            <div class="detail-btn" onclick="event.stopPropagation(); showScreen('detail', null)">详情</div>
                             <div class="emoji">🥦</div>
                             <div class="name">白菜</div>
-                            <div class="amount">6.0</div>
+                            <div class="amount">6</div>
                         </div>
                         <div class="veg-card" onclick="selectCard(this)">
+                            <div class="detail-btn" onclick="event.stopPropagation(); showScreen('detail', null)">详情</div>
                             <div class="emoji">🥒</div>
                             <div class="name">瓜软</div>
-                            <div class="amount">0.0</div>
+                            <div class="amount">0</div>
                         </div>
                         <div class="veg-card" onclick="selectCard(this)">
+                            <div class="detail-btn" onclick="event.stopPropagation(); showScreen('detail', null)">详情</div>
                             <div class="emoji">🍈</div>
                             <div class="name">白瓜</div>
-                            <div class="amount">0.0</div>
+                            <div class="amount">0</div>
                         </div>
                     </div>
                     
@@ -739,7 +873,7 @@
                             <div class="num-key dot" onclick="pressKey('.')">．</div>
                         </div>
                         <div class="numpad-row">
-                            <div class="num-key confirm" onclick="confirmInput()" style="flex: 1;">确认</div>
+                            <div class="num-key confirm" onclick="confirmInput()">确认</div>
                         </div>
                     </div>
                 </div>
@@ -750,21 +884,47 @@
                         <span>9:41</span>
                         <span>📶 📡 🔋</span>
                     </div>
-                    <div style="height: 56px; background: #4CAF50; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: bold;">历史记录</div>
+                    <div class="app-bar">
+                        <span>历史记录</span>
+                        <span class="share-btn">📤</span>
+                    </div>
                     
                     <div class="grand-total">
                         <div class="label">累计总收入</div>
-                        <div class="total">675.0 元</div>
+                        <div class="total">67.5 元</div>
                         <div class="count">共 3 天有记录</div>
+                        <!-- 各菜品总收入分列 -->
+                        <div class="veg-total-row">
+                            <div class="veg-total-item">
+                                <div class="name">豆角</div>
+                                <div class="amount">30</div>
+                            </div>
+                            <div class="veg-total-item">
+                                <div class="name">菜心</div>
+                                <div class="amount">26.5</div>
+                            </div>
+                            <div class="veg-total-item">
+                                <div class="name">白菜</div>
+                                <div class="amount">11</div>
+                            </div>
+                            <div class="veg-total-item">
+                                <div class="name">瓜软</div>
+                                <div class="amount">0</div>
+                            </div>
+                            <div class="veg-total-item">
+                                <div class="name">白瓜</div>
+                                <div class="amount">0</div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="history-list">
-                        <div class="history-card has-record is-today">
+                        <div class="history-card is-today">
                             <div class="history-header">
                                 <div class="history-date">
                                     <span class="today-badge">今天</span>
                                     <span class="date-main">2026年3月27日</span>
-                                    <div class="date-lunar">农历二月初九</div>
+                                    <span class="date-lunar">农历二月初九</span>
                                 </div>
                                 <div class="history-total">26.5 元</div>
                             </div>
@@ -776,31 +936,31 @@
                                     </div>
                                     <div class="veg-item has-amount">
                                         <div class="name">🥬 菜心</div>
-                                        <div class="amount">8.0</div>
+                                        <div class="amount">8</div>
                                     </div>
                                     <div class="veg-item has-amount">
                                         <div class="name">🥦 白菜</div>
-                                        <div class="amount">6.0</div>
+                                        <div class="amount">6</div>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 6px; justify-content: center;">
-                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                    <div class="veg-item" style="max-width: 120px;">
                                         <div class="name">🥒 瓜软</div>
-                                        <div class="amount">0.0</div>
+                                        <div class="amount">0</div>
                                     </div>
-                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                    <div class="veg-item" style="max-width: 120px;">
                                         <div class="name">🍈 白瓜</div>
-                                        <div class="amount">0.0</div>
+                                        <div class="amount">0</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="history-card has-record">
+                        <div class="history-card">
                             <div class="history-header">
                                 <div class="history-date">
                                     <span class="date-main">2026年3月26日</span>
-                                    <div class="date-lunar">农历二月初八</div>
+                                    <span class="date-lunar">农历二月初八</span>
                                 </div>
                                 <div class="history-total">20.5 元</div>
                             </div>
@@ -812,31 +972,31 @@
                                     </div>
                                     <div class="veg-item has-amount">
                                         <div class="name">🥬 菜心</div>
-                                        <div class="amount">11.0</div>
+                                        <div class="amount">11</div>
                                     </div>
-                                    <div class="veg-item no-amount">
+                                    <div class="veg-item">
                                         <div class="name">🥦 白菜</div>
-                                        <div class="amount">0.0</div>
+                                        <div class="amount">0</div>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 6px; justify-content: center;">
-                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                    <div class="veg-item" style="max-width: 120px;">
                                         <div class="name">🥒 瓜软</div>
-                                        <div class="amount">0.0</div>
+                                        <div class="amount">0</div>
                                     </div>
-                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                    <div class="veg-item" style="max-width: 120px;">
                                         <div class="name">🍈 白瓜</div>
-                                        <div class="amount">0.0</div>
+                                        <div class="amount">0</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="history-card has-record">
+                        <div class="history-card">
                             <div class="history-header">
                                 <div class="history-date">
                                     <span class="date-main">2026年3月25日</span>
-                                    <div class="date-lunar">农历二月初七</div>
+                                    <span class="date-lunar">农历二月初七</span>
                                 </div>
                                 <div class="history-total">20.5 元</div>
                             </div>
@@ -844,7 +1004,7 @@
                                 <div style="display: flex; gap: 6px;">
                                     <div class="veg-item has-amount">
                                         <div class="name">🫘 豆角</div>
-                                        <div class="amount">8.0</div>
+                                        <div class="amount">8</div>
                                     </div>
                                     <div class="veg-item has-amount">
                                         <div class="name">🥬 菜心</div>
@@ -852,17 +1012,17 @@
                                     </div>
                                     <div class="veg-item has-amount">
                                         <div class="name">🥦 白菜</div>
-                                        <div class="amount">5.0</div>
+                                        <div class="amount">5</div>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 6px; justify-content: center;">
-                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                    <div class="veg-item" style="max-width: 120px;">
                                         <div class="name">🥒 瓜软</div>
-                                        <div class="amount">0.0</div>
+                                        <div class="amount">0</div>
                                     </div>
-                                    <div class="veg-item has-amount" style="max-width: 120px;">
+                                    <div class="veg-item" style="max-width: 120px;">
                                         <div class="name">🍈 白瓜</div>
-                                        <div class="amount">0.0</div>
+                                        <div class="amount">0</div>
                                     </div>
                                 </div>
                             </div>
@@ -870,7 +1030,7 @@
                     </div>
                     
                     <div class="back-btn">
-                        <a href="#" onclick="showScreen('home'); return false;">← 返回主界面</a>
+                        <a href="#" onclick="showScreen('home', null); return false;">← 返回主界面</a>
                     </div>
                 </div>
                 
@@ -880,19 +1040,23 @@
                         <span>9:41</span>
                         <span>📶 📡 🔋</span>
                     </div>
-                    <div style="height: 56px; background: #4CAF50; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: bold;">🫘 豆角</div>
+                    <div class="app-bar">
+                        <span>🫘 豆角</span>
+                    </div>
                     
                     <div class="detail-total">
                         <div class="label">本月销售总额</div>
-                        <div class="total">128.5 元</div>
-                        <div class="count">共 12 笔记录</div>
+                        <div class="total">30 元</div>
+                        <div class="count">共 3 笔记录</div>
                     </div>
                     
                     <div class="date-tabs">
-                        <div class="date-tab active">本月</div>
-                        <div class="date-tab">近一周</div>
-                        <div class="date-tab">上月</div>
+                        <div class="date-tab active" onclick="switchTab(this)">本月</div>
+                        <div class="date-tab" onclick="switchTab(this)">近一周</div>
+                        <div class="date-tab" onclick="switchTab(this)">上月</div>
                     </div>
+                    
+                    <div class="custom-range-btn">📅 自定义日期范围</div>
                     
                     <div class="detail-list">
                         <!-- 3月27日 -->
@@ -918,16 +1082,11 @@
                                     <span class="date">3月26日</span>
                                     <span class="lunar">农历二月初八</span>
                                 </div>
-                                <span class="subtotal">小计 17.5 元</span>
+                                <span class="subtotal">小计 9.5 元</span>
                             </div>
                             <div class="detail-item">
                                 <div class="time">14:20</div>
                                 <div class="amount">9.5 元</div>
-                                <div class="delete-btn">🗑️</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="time">10:15</div>
-                                <div class="amount">8.0 元</div>
                                 <div class="delete-btn">🗑️</div>
                             </div>
                         </div>
@@ -939,18 +1098,55 @@
                                     <span class="date">3月25日</span>
                                     <span class="lunar">农历二月初七</span>
                                 </div>
-                                <span class="subtotal">小计 8.0 元</span>
+                                <span class="subtotal">小计 8 元</span>
                             </div>
                             <div class="detail-item">
                                 <div class="time">11:00</div>
-                                <div class="amount">8.0 元</div>
+                                <div class="amount">8 元</div>
                                 <div class="delete-btn">🗑️</div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="back-btn">
-                        <a href="#" onclick="showScreen('home'); return false;">← 返回主界面</a>
+                        <a href="#" onclick="showScreen('home', null); return false;">← 返回主界面</a>
+                    </div>
+                </div>
+                
+                <!-- 导入数据页 -->
+                <div class="screen" id="screen-import">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>📶 📡 🔋</span>
+                    </div>
+                    <div class="app-bar">
+                        <span>导入数据</span>
+                    </div>
+                    
+                    <div class="import-body">
+                        <div class="import-title">从其他设备导入卖菜记录</div>
+                        <div class="import-subtitle">支持导入之前导出的JSON格式数据</div>
+                        
+                        <div class="import-btn" onclick="alert('📋 弹出粘贴JSON数据对话框')">
+                            <span class="icon">📋</span>
+                            <span>粘贴JSON数据</span>
+                        </div>
+                        
+                        <div class="import-outline-btn" onclick="alert('💡 显示JSON格式示例')">
+                            <span>❓</span>
+                            <span>查看JSON格式示例</span>
+                        </div>
+                        
+                        <div class="import-status">✓ 成功导入 15 条记录！</div>
+                        
+                        <div class="import-tip">
+                            <span class="icon">ℹ️</span>
+                            <span>提示：从"分享"功能导出的数据可以直接粘贴导入</span>
+                        </div>
+                    </div>
+                    
+                    <div class="back-btn">
+                        <a href="#" onclick="showScreen('home', null); return false;">← 返回主界面</a>
                     </div>
                 </div>
             </div>
@@ -961,12 +1157,21 @@
         let currentValue = '0';
         let selectedVegetable = '豆角';
         
-        function showScreen(name) {
+        function showScreen(name, el) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + name).classList.add('active');
             
+            // 高亮导航 tab
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            if (el) {
+                el.classList.add('active');
+            } else {
+                document.querySelectorAll('.nav-tab').forEach(t => {
+                    const map = { 'home': '主界面', 'history': '历史记录', 'detail': '菜品详情', 'import': '导入数据' };
+                    if (t.textContent === map[name]) t.classList.add('active');
+                });
+            }
+            document.querySelector('.phone').scrollTop = 0;
         }
         
         function selectCard(card) {
@@ -976,6 +1181,11 @@
             document.querySelector('.input-display .label').textContent = selectedVegetable + '：';
             currentValue = '0';
             document.getElementById('display').textContent = '0 元';
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
         }
         
         function pressKey(key) {
