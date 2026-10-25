@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
+import '../services/dish_service.dart';
 import '../services/file_reader.dart';
 
 class ImportScreen extends StatefulWidget {
@@ -33,8 +34,19 @@ class _ImportScreenState extends State<ImportScreen> {
       final List<dynamic> jsonList = jsonDecode(jsonStr);
       final count = await StorageService.importFromJson(jsonList);
 
+      // 记录里出现但菜品列表缺失的菜名，自动补建（图标用名称首字）
+      final names = <String>{};
+      for (var item in jsonList) {
+        try {
+          names.add(item['vegetable'] as String);
+        } catch (_) {}
+      }
+      final addedDishes = await DishService.addMissingDishes(names);
+
       setState(() {
-        _status = '✓ 成功导入 $count 条记录！';
+        _status = addedDishes > 0
+            ? '✓ 成功导入 $count 条记录！\n并自动添加了 $addedDishes 个菜品'
+            : '✓ 成功导入 $count 条记录！';
         _isLoading = false;
       });
     } catch (e) {

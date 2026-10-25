@@ -58,6 +58,21 @@ class DishService {
     await prefs.setStringList(_removedBuiltinKey, removed);
   }
 
+  /// 把记录里出现、但菜品列表缺失的菜名自动补建为自定义菜品（图标用名称首字）
+  /// 返回新增数量
+  static Future<int> addMissingDishes(Iterable<String> names) async {
+    final existing = (await getAllDishes()).map((d) => d.name).toSet();
+    int added = 0;
+    for (var name in names) {
+      if (name.trim().isEmpty || existing.contains(name)) continue;
+      if (await addCustomDish(name, null)) {
+        added++;
+        existing.add(name);
+      }
+    }
+    return added;
+  }
+
   /// 删除菜品：历史记录保留，只是主界面不再显示
   static Future<void> removeDish(String name) async {
     final prefs = await SharedPreferences.getInstance();
