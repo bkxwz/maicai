@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/dish.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
@@ -7,6 +8,7 @@ import '../services/dish_service.dart';
 import '../services/sound_service.dart';
 import '../services/export_service.dart';
 import '../widgets/numpad.dart';
+import '../widgets/dish_icon.dart';
 import '../utils/format.dart';
 import 'vegetable_detail.dart';
 import 'history_screen.dart';
@@ -327,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildDishIcon(dish, size: 32),
+                  DishIcon(dish: dish, size: 30),
                   const SizedBox(width: 8),
                   Text(
                     dish.name,
@@ -352,6 +354,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 _showRenameDialog(dish);
               },
             ),
+            // 自定义菜品可设置/更换图片
+            if (dish.image == null)
+              ListTile(
+                leading: const Icon(Icons.image, color: Colors.orange, size: 28),
+                title: Text(
+                  dish.photo == null ? '设置图片' : '更换图片',
+                  style: const TextStyle(fontSize: 18),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickPhotoFor(dish);
+                },
+              ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red, size: 28),
               title: const Text('删除（历史记录保留）', style: TextStyle(fontSize: 18)),
@@ -363,6 +378,46 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 从相册选图并设为自定义菜品的图标
+  Future<void> _pickPhotoFor(Dish dish) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty || !mounted) return;
+    final bytes = result.files.single.bytes;
+    if (bytes == null) {
+      _showPhotoError('无法读取所选图片');
+      return;
+    }
+    final photo = await DishService.processImageBytes(bytes);
+    if (photo == null) {
+      _showPhotoError('不支持的图片格式');
+      return;
+    }
+    await DishService.setCustomPhoto(dish.name, photo);
+    if (!mounted) return;
+    _reload();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✓ 图片已更新', style: TextStyle(fontSize: 16)),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _showPhotoError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(fontSize: 16)),
+        backgroundColor: Colors.orange,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -608,33 +663,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// 菜品圆形图标：内置菜品用图片，自定义菜品用表情
-  Widget _buildDishIcon(Dish dish, {double size = 44}) {
-    final circleSize = size + 4;
-    return Container(
-      width: circleSize,
-      height: circleSize,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey.shade300, width: 2),
-      ),
-      child: ClipOval(
-        child: Container(
-          color: Colors.white,
-          alignment: Alignment.center,
-          child: dish.image != null
-              ? Image.asset(
-                  'assets/images/${dish.image}_80.png',
-                  width: size,
-                  height: size,
-                  fit: BoxFit.cover,
-                )
-              : Text(dish.emoji, style: TextStyle(fontSize: size * 0.62)),
-        ),
-      ),
-    );
-  }
-
   Widget _buildDishCard(Dish dish) {
     final name = dish.name;
     final amount = _todayAmounts[name] ?? 0;
@@ -685,7 +713,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            _buildDishIcon(dish),
+            DishIcon(
+              dish: dish,
+              size: 44,
+              borderColor: isSelected ? Colors.green : Colors.grey.shade300,
+            ),
             const SizedBox(height: 2),
             Text(
               name,
@@ -770,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// 添加菜品对话框：名称 + 表情选择 + 恢复内置菜品
+/// 添加菜品对话框：名称 + 上传图片（可选，不上传用名称首字当图标）
 class _AddDishDialog extends StatefulWidget {
   final List<String> existingNames;
   final VoidCallback onAdded;
@@ -783,8 +815,9 @@ class _AddDishDialog extends StatefulWidget {
 
 class _AddDishDialogState extends State<_AddDishDialog> {
   final TextEditingController _nameController = TextEditingController();
-  String _selectedEmoji = '🥬';
+  String? _photo; // base64 图片
   String _error = '';
+  bool _picking = false;
   List<Dish> _removedBuiltins = [];
 
   @override
@@ -804,6 +837,32 @@ class _AddDishDialogState extends State<_AddDishDialog> {
     super.dispose();
   }
 
+  Future<void> _pickPhoto() async {
+    if (_picking) return;
+    setState(() => _picking = true);
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        withData: true,
+      );
+      if (result != null && result.files.isNotEmpty) {
+        final bytes = result.files.single.bytes;
+        final photo = bytes == null ? null : await DishService.processImageBytes(bytes);
+        if (!mounted) return;
+        if (photo == null) {
+          setState(() => _error = '不支持的图片格式，请换一张试试');
+        } else {
+          setState(() {
+            _photo = photo;
+            _error = '';
+          });
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _picking = false);
+    }
+  }
+
   Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
@@ -815,7 +874,7 @@ class _AddDishDialogState extends State<_AddDishDialog> {
       setState(() => _error = '「$name」已存在');
       return;
     }
-    final ok = await DishService.addCustomDish(name, _selectedEmoji);
+    final ok = await DishService.addCustomDish(name, _photo);
     if (!mounted) return;
     if (ok) {
       Navigator.pop(context);
@@ -834,6 +893,8 @@ class _AddDishDialogState extends State<_AddDishDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final previewName = _nameController.text.trim().isEmpty ? '菜' : _nameController.text.trim();
+
     return AlertDialog(
       title: const Text('添加菜品', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
       content: SingleChildScrollView(
@@ -846,33 +907,70 @@ class _AddDishDialogState extends State<_AddDishDialog> {
               autofocus: true,
               maxLength: 6,
               style: const TextStyle(fontSize: 20),
+              onChanged: (_) => setState(() {}),
               decoration: const InputDecoration(hintText: '输入菜品名称（如：芥蓝）'),
             ),
             const SizedBox(height: 8),
-            const Text('选个图标：', style: TextStyle(fontSize: 14, color: Colors.grey)),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: DishService.emojiChoices.map((emoji) {
-                final selected = emoji == _selectedEmoji;
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedEmoji = emoji),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: selected ? Colors.green.shade100 : Colors.grey.shade100,
-                      border: Border.all(
-                        color: selected ? Colors.green : Colors.grey.shade300,
-                        width: selected ? 3 : 1,
-                      ),
+            // 图片上传（可选）
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Row(
+                children: [
+                  DishIcon(dish: Dish(name: previewName, photo: _photo), size: 40),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('菜品图片（可选）', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                        const SizedBox(height: 2),
+                        Text(
+                          _photo == null ? '不上传则用名称当图标' : '已选择图片',
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
                     ),
-                    child: Center(child: Text(emoji, style: const TextStyle(fontSize: 24))),
                   ),
-                );
-              }).toList(),
+                  Column(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _picking ? null : _pickPhoto,
+                        icon: _picking
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.photo_library, size: 20),
+                        label: Text(
+                          _photo == null ? '选图片' : '更换',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.green,
+                          side: const BorderSide(color: Colors.green),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        ),
+                      ),
+                      if (_photo != null)
+                        TextButton(
+                          onPressed: () => setState(() => _photo = null),
+                          child: const Text('移除图片', style: TextStyle(fontSize: 12)),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red.shade400,
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                            minimumSize: Size(0, 28),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             if (_error.isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -887,7 +985,7 @@ class _AddDishDialogState extends State<_AddDishDialog> {
                 runSpacing: 8,
                 children: _removedBuiltins.map((dish) {
                   return ActionChip(
-                    avatar: Text(dish.emoji, style: const TextStyle(fontSize: 18)),
+                    avatar: DishIcon(dish: dish, size: 16),
                     label: Text(dish.name, style: const TextStyle(fontSize: 16)),
                     backgroundColor: Colors.green.shade50,
                     onPressed: () => _restore(dish),

@@ -3,6 +3,7 @@ import '../models/dish.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
 import '../utils/format.dart';
+import '../widgets/dish_icon.dart';
 
 class VegetableDetailScreen extends StatefulWidget {
   final Dish dish;
@@ -184,25 +185,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
             Container(
               width: 34,
               height: 34,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: ClipOval(
-                child: Container(
-                  color: Colors.white,
-                  alignment: Alignment.center,
-                  child: widget.dish.image != null
-                      ? Image.asset(
-                          'assets/images/${widget.dish.image}_80.png',
-                          fit: BoxFit.cover,
-                        )
-                      : FittedBox(child: Padding(
-                          padding: const EdgeInsets.all(3),
-                          child: Text(widget.dish.emoji),
-                        )),
-                ),
-              ),
+              child: DishIcon(dish: widget.dish, size: 28, borderColor: Colors.white),
             ),
             const SizedBox(width: 8),
             Text(widget.dish.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),

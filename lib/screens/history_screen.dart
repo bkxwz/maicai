@@ -5,6 +5,7 @@ import '../services/storage_service.dart';
 import '../services/dish_service.dart';
 import '../services/export_service.dart';
 import '../utils/format.dart';
+import '../widgets/dish_icon.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -361,7 +362,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (dish != null)
-                Text(dish.emoji, style: const TextStyle(fontSize: 13))
+                DishIcon(dish: dish, size: 14)
               else
                 Icon(Icons.help_outline, size: 13, color: Colors.white70),
               const SizedBox(width: 3),
@@ -400,7 +401,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (dish != null)
-                Text(dish.emoji, style: const TextStyle(fontSize: 16))
+                DishIcon(dish: dish, size: 18)
               else
                 Icon(Icons.help_outline, size: 16, color: Colors.grey),
               const SizedBox(width: 3),

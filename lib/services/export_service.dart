@@ -68,8 +68,7 @@ class ExportService {
     buffer.writeln('');
 
     for (var name in names) {
-      final dish = dishes.where((d) => d.name == name).firstOrNull;
-      buffer.writeln('${dish?.emoji ?? '🥬'} $name：${formatAmount(totals[name] ?? 0)} 元');
+      buffer.writeln('$name：${formatAmount(totals[name] ?? 0)} 元');
     }
 
     buffer.writeln('');
