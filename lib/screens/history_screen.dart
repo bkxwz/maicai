@@ -77,19 +77,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   double get _grandTotal => _totalsByDish.values.fold(0, (sum, v) => sum + v);
 
-  String get _totalLabel {
-    switch (_range) {
-      case '本周':
-        return '本周收入';
-      case '本月':
-        return '本月收入';
-      case '本年':
-        return '本年收入';
-      default:
-        return '累计总收入';
-    }
-  }
-
   /// 展示顺序：当前菜品在前，已删除但有记录的菜名在后
   List<String> _allDishNames(Map<String, double> totals) {
     final names = _dishes.map((d) => d.name).toList();
@@ -137,7 +124,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('历史记录', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+        title: const Text('总收入', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
         centerTitle: true,
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
@@ -159,11 +146,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   color: Colors.green,
                   child: Column(
                     children: [
-                      Text(
-                        _totalLabel,
-                        style: const TextStyle(fontSize: 18, color: Colors.white70),
-                      ),
-                      const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                         decoration: BoxDecoration(
@@ -179,7 +161,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 12),
+                      // 时间范围快捷按钮（金额正下方）
+                      Row(
+                        children: _rangeOptions
+                            .map((option) => _buildRangeButton(option))
+                            .toList(),
+                      ),
+                      const SizedBox(height: 8),
                       Text(
                         _range == '全部'
                             ? '共 ${summaries.length} 天有记录'
@@ -202,13 +191,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               .map((name) => _buildTotalItem(name, totals[name] ?? 0))
                               .toList(),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      // 时间范围快捷按钮
-                      Row(
-                        children: _rangeOptions
-                            .map((option) => _buildRangeButton(option))
-                            .toList(),
                       ),
                     ],
                   ),
