@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import '../models/dish.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
-import '../utils/lunar_helper.dart';
 import '../utils/format.dart';
 
 class VegetableDetailScreen extends StatefulWidget {
-  final String vegetable;
+  final Dish dish;
 
-  const VegetableDetailScreen({super.key, required this.vegetable});
+  const VegetableDetailScreen({super.key, required this.dish});
 
   @override
   State<VegetableDetailScreen> createState() => _VegetableDetailScreenState();
@@ -20,23 +20,6 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
   List<Transaction> _transactions = [];
   double _total = 0;
   bool _isLoading = true;
-
-  String get _vegetableImage {
-    switch (widget.vegetable) {
-      case '豆角':
-        return 'doujiao';
-      case '菜心':
-        return 'caixin';
-      case '白菜':
-        return 'baicai';
-      case '瓜软':
-        return 'guaruan';
-      case '白瓜':
-        return 'baigua';
-      default:
-        return 'caixin';
-    }
-  }
 
   @override
   void initState() {
@@ -53,18 +36,18 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    
+
     final transactions = await StorageService.getTransactionsByVegetableAndRange(
-      widget.vegetable,
+      widget.dish.name,
       _startDate,
       _endDate,
     );
-    
+
     double total = 0;
     for (var t in transactions) {
       total += t.amount;
     }
-    
+
     setState(() {
       _transactions = transactions;
       _total = total;
@@ -169,12 +152,8 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
 
   String _formatDate(String dateStr) {
     final date = DateTime.parse(dateStr);
-    return '${date.month}月${date.day}日';
-  }
-  
-  String _getLunarDate(String dateStr) {
-    final date = DateTime.parse(dateStr);
-    return LunarHelper.getLunarDate(date);
+    final weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    return '${date.month}月${date.day}日 ${weekdays[date.weekday % 7]}';
   }
 
   String _formatDateRange() {
@@ -203,21 +182,30 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: 34,
+              height: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
               child: ClipOval(
-                child: Image.asset(
-                  'assets/images/${_vegetableImage}_80.png',
-                  fit: BoxFit.cover,
+                child: Container(
+                  color: Colors.white,
+                  alignment: Alignment.center,
+                  child: widget.dish.image != null
+                      ? Image.asset(
+                          'assets/images/${widget.dish.image}_80.png',
+                          fit: BoxFit.cover,
+                        )
+                      : FittedBox(child: Padding(
+                          padding: const EdgeInsets.all(3),
+                          child: Text(widget.dish.emoji),
+                        )),
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            Text(widget.vegetable, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+            Text(widget.dish.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
           ],
         ),
         centerTitle: true,
@@ -262,7 +250,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                     ],
                   ),
                 ),
-                
+
                 // 时间范围选择
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -304,7 +292,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                     ],
                   ),
                 ),
-                
+
                 // 交易记录列表（按日期分组，显示每笔）
                 Expanded(
                   child: _transactions.isEmpty
@@ -331,12 +319,12 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
   List<Widget> _buildTransactionList() {
     final grouped = _groupByDate();
     final widgets = <Widget>[];
-    
+
     for (var entry in grouped.entries) {
       final date = entry.key;
       final transactions = entry.value;
       final dayTotal = transactions.fold<double>(0, (sum, t) => sum + t.amount);
-      
+
       // 日期标题
       widgets.add(
         Padding(
@@ -347,11 +335,6 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
                 _formatDate(date),
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
               ),
-              const SizedBox(width: 8),
-              Text(
-                _getLunarDate(date),
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-              ),
               const Spacer(),
               Text(
                 '小计 ${formatAmount(dayTotal)} 元',
@@ -361,7 +344,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
           ),
         ),
       );
-      
+
       // 该天的所有交易
       for (var t in transactions) {
         widgets.add(
@@ -382,7 +365,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
             child: Row(
               children: [
                 // 时间
-                Container(
+                SizedBox(
                   width: 50,
                   child: Text(
                     _getTimeFromTimestamp(t.timestamp),
@@ -422,7 +405,7 @@ class _VegetableDetailScreenState extends State<VegetableDetailScreen> {
         );
       }
     }
-    
+
     return widgets;
   }
 

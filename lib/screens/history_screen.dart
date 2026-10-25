@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../models/dish.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
+import '../services/dish_service.dart';
 import '../services/export_service.dart';
-import '../utils/lunar_helper.dart';
 import '../utils/format.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -13,14 +14,10 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  List<DailyRecord> _records = [];
-  double _grandTotal = 0;
+  List<DailySummary> _summaries = [];
+  Map<String, double> _totalsByDish = {};
+  List<Dish> _dishes = [];
   bool _isLoading = true;
-  double _totalDoujiao = 0;
-  double _totalCaixin = 0;
-  double _totalBaicai = 0;
-  double _totalGuaruan = 0;
-  double _totalBaigua = 0;
 
   @override
   void initState() {
@@ -29,49 +26,46 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _loadRecords() async {
-    final records = await StorageService.getAllRecords();
-    double total = 0;
-    double totalDoujiao = 0;
-    double totalCaixin = 0;
-    double totalBaicai = 0;
-    double totalGuaruan = 0;
-    double totalBaigua = 0;
-    
-    for (var record in records) {
-      total += record.total;
-      totalDoujiao += record.doubang;
-      totalCaixin += record.caixin;
-      totalBaicai += record.baicai;
-      totalGuaruan += record.guaruan;
-      totalBaigua += record.baigua;
-    }
-    
+    final summaries = await StorageService.getAllDailySummaries();
+    final totals = await StorageService.getTotalsByDish();
+    final dishes = await DishService.getAllDishes();
+
     setState(() {
-      _records = records;
-      _grandTotal = total;
-      _totalDoujiao = totalDoujiao;
-      _totalCaixin = totalCaixin;
-      _totalBaicai = totalBaicai;
-      _totalGuaruan = totalGuaruan;
-      _totalBaigua = totalBaigua;
+      _summaries = summaries;
+      _totalsByDish = totals;
+      _dishes = dishes;
       _isLoading = false;
     });
+  }
+
+  double get _grandTotal => _totalsByDish.values.fold(0, (sum, v) => sum + v);
+
+  /// 展示顺序：当前菜品在前，已删除但有记录的菜名在后
+  List<String> get _allDishNames {
+    final names = _dishes.map((d) => d.name).toList();
+    for (var name in _totalsByDish.keys) {
+      if (!names.contains(name)) names.add(name);
+    }
+    return names;
   }
 
   String _formatDate(String dateStr) {
     final date = DateTime.parse(dateStr);
     return '${date.year}年${date.month}月${date.day}日';
   }
-  
-  String _getLunarDate(String dateStr) {
-    final date = DateTime.parse(dateStr);
-    return LunarHelper.getLunarDate(date);
-  }
-  
+
   bool _isToday(String dateStr) {
     final date = DateTime.parse(dateStr);
     final now = DateTime.now();
     return date.year == now.year && date.month == now.month && date.day == now.day;
+  }
+
+  Dish? _findDish(String name) {
+    try {
+      return _dishes.firstWhere((d) => d.name == name);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> _exportSummary() async {
@@ -134,33 +128,31 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '共 ${_records.length} 天有记录',
+                        '共 ${_summaries.length} 天有记录',
                         style: const TextStyle(fontSize: 14, color: Colors.white70),
                       ),
                       const SizedBox(height: 12),
-                      // 各菜品总收入
+                      // 各菜品总收入（按实际菜品动态显示）
                       Container(
+                        width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildTotalItem('豆角', _totalDoujiao),
-                            _buildTotalItem('菜心', _totalCaixin),
-                            _buildTotalItem('白菜', _totalBaicai),
-                            _buildTotalItem('瓜软', _totalGuaruan),
-                            _buildTotalItem('白瓜', _totalBaigua),
-                          ],
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceEvenly,
+                          runSpacing: 8,
+                          children: _allDishNames
+                              .map((name) => _buildTotalItem(name, _totalsByDish[name] ?? 0))
+                              .toList(),
                         ),
                       ),
                     ],
                   ),
                 ),
                 Expanded(
-                  child: _records.isEmpty
+                  child: _summaries.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -173,10 +165,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
-                          itemCount: _records.length,
+                          itemCount: _summaries.length,
                           itemBuilder: (context, index) {
-                            final record = _records[index];
-                            return _buildDayCard(record);
+                            return _buildDayCard(_summaries[index]);
                           },
                         ),
                 ),
@@ -185,10 +176,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildDayCard(DailyRecord record) {
+  Widget _buildDayCard(DailySummary record) {
     final isToday = _isToday(record.date);
-    final hasRecord = record.total > 0;
-    
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -199,8 +189,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
           border: isToday ? Border.all(color: Colors.green, width: 3) : null,
           boxShadow: [
             BoxShadow(
-              color: hasRecord ? Colors.green.withOpacity(0.15) : Colors.black.withOpacity(0.08),
-              blurRadius: hasRecord ? 10 : 8,
+              color: Colors.green.withOpacity(0.15),
+              blurRadius: 10,
               offset: const Offset(0, 2),
             ),
           ],
@@ -211,18 +201,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: hasRecord 
-                    ? (isToday ? Colors.green : Colors.green.shade50) 
-                    : Colors.grey.shade50,
-              ),
+              color: isToday ? Colors.green : Colors.green.shade50,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Row(
                       children: [
-                        if (isToday) 
+                        if (isToday)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
@@ -239,10 +225,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                           ),
                         const SizedBox(width: 6),
-                        Icon(Icons.calendar_today, 
-                          size: 20, 
-                          color: hasRecord ? (isToday ? Colors.white : Colors.green) : Colors.grey
-                        ),
+                        Icon(Icons.calendar_today,
+                            size: 20,
+                            color: isToday ? Colors.white : Colors.green),
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
@@ -250,9 +235,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: hasRecord 
-                                  ? (isToday ? Colors.white : Colors.green.shade700) 
-                                  : Colors.grey,
+                              color: isToday ? Colors.white : Colors.green.shade700,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -260,53 +243,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    child: Text(
-                      '${formatAmount(record.total)} 元',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: hasRecord 
-                            ? (isToday ? Colors.white : Colors.green.shade700) 
-                            : Colors.grey,
-                      ),
+                  Text(
+                    '${formatAmount(record.total)} 元',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: isToday ? Colors.white : Colors.green.shade700,
                     ),
                   ),
                 ],
               ),
             ),
-            // 农历和菜品明细
+            // 菜品明细（当天有记录的菜品）
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
               color: Colors.white,
-              child: Column(
-                children: [
-                  Text(
-                    _getLunarDate(record.date),
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                  ),
-                  const SizedBox(height: 10),
-                  // 第一行：3个菜品
-                  Row(
-                    children: [
-                      _buildVegetableItem('豆角', 'doujiao', record.doubang),
-                      const SizedBox(width: 6),
-                      _buildVegetableItem('菜心', 'caixin', record.caixin),
-                      const SizedBox(width: 6),
-                      _buildVegetableItem('白菜', 'baicai', record.baicai),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildVegetableItem('瓜软', 'guaruan', record.guaruan),
-                      const SizedBox(width: 6),
-                      _buildVegetableItem('白瓜', 'baigua', record.baigua),
-                    ],
-                  ),
-                ],
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: _allDishNames
+                    .where((name) => record.amountOf(name) > 0)
+                    .map((name) => _buildDishItem(name, record.amountOf(name)))
+                    .toList(),
               ),
             ),
           ],
@@ -316,79 +275,82 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildTotalItem(String name, double amount) {
-    return Column(
-      children: [
-        Text(
-          name,
-          style: const TextStyle(fontSize: 11, color: Colors.white70),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          '${formatAmount(amount)}',
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
+    final dish = _findDish(name);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (dish != null)
+                Text(dish.emoji, style: const TextStyle(fontSize: 13))
+              else
+                Icon(Icons.help_outline, size: 13, color: Colors.white70),
+              const SizedBox(width: 3),
+              Text(
+                name,
+                style: const TextStyle(fontSize: 13, color: Colors.white70),
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 2),
+          Text(
+            formatAmount(amount),
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildVegetableItem(String name, String imageName, double amount) {
-    final hasAmount = amount > 0;
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-        decoration: BoxDecoration(
-          color: hasAmount ? Colors.green.shade50 : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: hasAmount ? Colors.green.shade300 : Colors.grey.shade300,
-                  width: 1.5,
-                ),
-              ),
-              child: ClipOval(
-                child: Container(
-                  color: Colors.white,
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    'assets/images/${imageName}_80.png',
-                    width: 32,
-                    height: 32,
-                    fit: BoxFit.cover,
+  Widget _buildDishItem(String name, double amount) {
+    final dish = _findDish(name);
+    return Container(
+      width: 76,
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (dish != null)
+                Text(dish.emoji, style: const TextStyle(fontSize: 16))
+              else
+                Icon(Icons.help_outline, size: 16, color: Colors.grey),
+              const SizedBox(width: 3),
+              Flexible(
+                child: Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green.shade700,
                   ),
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            formatAmount(amount),
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: Colors.green,
             ),
-            const SizedBox(height: 2),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: hasAmount ? FontWeight.bold : FontWeight.normal,
-                color: hasAmount ? Colors.green.shade700 : Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              '${formatAmount(amount)}',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                color: hasAmount ? Colors.green : Colors.grey,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

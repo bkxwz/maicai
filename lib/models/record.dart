@@ -2,7 +2,7 @@
 class Transaction {
   final String id;          // 唯一ID
   final String date;        // 日期 2026-03-27
-  final String vegetable;   // 菜品：豆角/菜心/白菜/瓜软/白瓜
+  final String vegetable;   // 菜品名
   final double amount;      // 金额
   final int timestamp;      // 时间戳，用于排序
 
@@ -36,56 +36,15 @@ class Transaction {
   }
 }
 
-/// 每日汇总记录
-class DailyRecord {
+/// 每日汇总（按菜品名动态汇总，不绑定固定菜品）
+class DailySummary {
   final String date;
-  final double doubang;   // 豆角
-  final double caixin;    // 菜心
-  final double baicai;    // 白菜
-  final double guaruan;   // 瓜软
-  final double baigua;    // 白瓜
+  final Map<String, double> amounts; // 菜品名 -> 当日金额
 
-  DailyRecord({
-    required this.date,
-    this.doubang = 0,
-    this.caixin = 0,
-    this.baicai = 0,
-    this.guaruan = 0,
-    this.baigua = 0,
-  });
+  DailySummary({required this.date, Map<String, double>? amounts})
+      : amounts = amounts ?? {};
 
-  double get total => doubang + caixin + baicai + guaruan + baigua;
+  double get total => amounts.values.fold(0, (sum, v) => sum + v);
 
-  factory DailyRecord.fromJson(Map<String, dynamic> json) {
-    return DailyRecord(
-      date: json['date'] as String,
-      doubang: (json['doubang'] as num?)?.toDouble() ?? 0,
-      caixin: (json['caixin'] as num?)?.toDouble() ?? 0,
-      baicai: (json['baicai'] as num?)?.toDouble() ?? 0,
-      guaruan: (json['guaruan'] as num?)?.toDouble() ?? 0,
-      baigua: (json['baigua'] as num?)?.toDouble() ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'date': date,
-      'doubang': doubang,
-      'caixin': caixin,
-      'baicai': baicai,
-      'guaruan': guaruan,
-      'baigua': baigua,
-    };
-  }
-
-  double getVegetableAmount(String vegetable) {
-    switch (vegetable) {
-      case '豆角': return doubang;
-      case '菜心': return caixin;
-      case '白菜': return baicai;
-      case '瓜软': return guaruan;
-      case '白瓜': return baigua;
-      default: return 0;
-    }
-  }
+  double amountOf(String dish) => amounts[dish] ?? 0;
 }
