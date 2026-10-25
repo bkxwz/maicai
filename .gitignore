@@ -44,3 +44,4 @@ app.*.map.json
 
 # ZCode local
 .zcode/
+*.apk

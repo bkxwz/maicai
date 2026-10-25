@@ -11,7 +11,8 @@
 - 📊 实时显示今日合计和各菜品金额
 - 📈 菜品详情页：查看本月、近一周、上月或自定义时间段的销售总额
 - 📜 历史记录：按天查看各菜品明细与累计总收入
-- 📤 分享 / 导入 JSON 数据，换机不丢账
+- 📤 分享三种方式：**复制数据**（默认，剪贴板）、分享文本、分享 .json 文件
+- 📥 导入两种方式：粘贴 JSON、从 .json 文件导入，换机不丢账
 
 ## 界面说明
 
@@ -75,8 +76,9 @@ lib/
 ├── services/
 │   ├── storage_service.dart        # 交易记录存储
 │   ├── dish_service.dart           # 菜品管理（增删改名）
-│   ├── export_service.dart         # 分享/导出
-│   └── sound_service.dart          # 按键音与震动反馈
+│   ├── export_service.dart         # 分享/复制/导出
+│   ├── sound_service.dart          # 按键音与震动反馈
+│   └── file_reader.dart            # 跨平台文件读取
 ├── utils/
 │   └── format.dart                 # 金额格式化
 └── widgets/

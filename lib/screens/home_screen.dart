@@ -176,6 +176,119 @@ class _HomeScreenState extends State<HomeScreen> {
     _reload();
   }
 
+  // ==================== 分享 ====================
+
+  /// 分享菜单：复制（默认）/ 分享文本 / 分享文件
+  void _showShareSheet() {
+    SoundService.playKeyClick();
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 16, bottom: 4),
+              child: Text(
+                '分享数据',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Text(
+                'JSON格式，可在「导入」中恢复全部记录',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+            ),
+            _buildShareTile(
+              icon: Icons.content_copy,
+              title: '复制数据',
+              subtitle: '复制到剪贴板，去「导入」粘贴即可恢复',
+              primary: true,
+              onTap: () => _runShare(sheetContext, ExportService.copyJsonData, '✓ 已复制，可在「导入」中粘贴恢复'),
+            ),
+            _buildShareTile(
+              icon: Icons.text_fields,
+              title: '分享文本',
+              subtitle: '把数据作为文字消息发送',
+              primary: false,
+              onTap: () => _runShare(sheetContext, ExportService.shareJsonText),
+            ),
+            _buildShareTile(
+              icon: Icons.attach_file,
+              title: '分享文件',
+              subtitle: '发送 .json 文件，可通过「从文件导入」恢复',
+              primary: false,
+              onTap: () => _runShare(sheetContext, ExportService.shareJsonFile),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShareTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool primary,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+      leading: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: primary ? Colors.green : Colors.green.shade50,
+        ),
+        child: Icon(icon, color: primary ? Colors.white : Colors.green, size: 26),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: primary ? FontWeight.bold : FontWeight.w500,
+          color: primary ? Colors.green.shade700 : Colors.black87,
+        ),
+      ),
+      subtitle: Text(subtitle, style: const TextStyle(fontSize: 13)),
+      onTap: onTap,
+    );
+  }
+
+  Future<void> _runShare(BuildContext sheetContext, Future<void> Function() action, [String? successMessage]) async {
+    Navigator.pop(sheetContext);
+    try {
+      await action();
+      if (!mounted) return;
+      if (successMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMessage, style: const TextStyle(fontSize: 16)),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$e'.replaceFirst('Exception: ', ''), style: const TextStyle(fontSize: 16)),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   // ==================== 菜品管理 ====================
 
   void _showAddDishDialog() {
@@ -371,17 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildTopBarItem(Icons.share, '分享', () async {
-                    try {
-                      await ExportService.shareJson();
-                    } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('分享失败：$e')),
-                        );
-                      }
-                    }
-                  }),
+                  _buildTopBarItem(Icons.share, '分享', _showShareSheet),
                   _buildTopBarItem(Icons.download, '导入', () async {
                     await Navigator.push(
                       context,

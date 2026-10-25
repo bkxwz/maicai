@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import '../models/record.dart';
 import '../services/storage_service.dart';
+import '../services/file_reader.dart';
 
 class ImportScreen extends StatefulWidget {
   const ImportScreen({super.key});
@@ -30,7 +32,7 @@ class _ImportScreenState extends State<ImportScreen> {
     try {
       final List<dynamic> jsonList = jsonDecode(jsonStr);
       final count = await StorageService.importFromJson(jsonList);
-      
+
       setState(() {
         _status = '✓ 成功导入 $count 条记录！';
         _isLoading = false;
@@ -38,6 +40,48 @@ class _ImportScreenState extends State<ImportScreen> {
     } catch (e) {
       setState(() {
         _status = '✗ 导入失败：JSON格式错误\n$e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  /// 从 .json / .txt 文件导入
+  Future<void> _importFromFile() async {
+    setState(() {
+      _isLoading = true;
+      _status = '正在读取文件...';
+    });
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json', 'txt'],
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty) {
+        // 用户取消选择
+        setState(() {
+          _isLoading = false;
+          _status = '';
+        });
+        return;
+      }
+
+      final file = result.files.single;
+      String content;
+      if (file.bytes != null) {
+        content = const Utf8Decoder(allowMalformed: true).convert(file.bytes!);
+      } else if (file.path != null) {
+        content = await readFilePath(file.path!);
+      } else {
+        throw Exception('无法读取所选文件');
+      }
+
+      _importFromJson(content);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _status = '✗ 读取文件失败：$e';
         _isLoading = false;
       });
     }
@@ -132,11 +176,11 @@ class _ImportScreenState extends State<ImportScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '支持导入之前导出的JSON格式数据',
+              '支持粘贴JSON数据，或导入之前分享的 .json 文件',
               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 30),
-            
+
             // 粘贴JSON按钮
             ElevatedButton.icon(
               onPressed: _showPasteDialog,
@@ -145,6 +189,23 @@ class _ImportScreenState extends State<ImportScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 从文件导入按钮
+            ElevatedButton.icon(
+              onPressed: _importFromFile,
+              icon: const Icon(Icons.folder_open, size: 28),
+              label: const Text('从文件导入', style: TextStyle(fontSize: 18)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.green,
+                side: const BorderSide(color: Colors.green, width: 2),
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -208,7 +269,7 @@ class _ImportScreenState extends State<ImportScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '提示：从"分享"功能导出的数据可以直接粘贴导入',
+                      '提示：「分享 → 复制数据」的内容可直接粘贴导入；「分享 → 分享文件」的 .json 文件可用「从文件导入」恢复',
                       style: TextStyle(fontSize: 13, color: Colors.blue.shade700),
                     ),
                   ),

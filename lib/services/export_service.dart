@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../services/storage_service.dart';
@@ -7,15 +8,28 @@ import '../services/dish_service.dart';
 import '../utils/format.dart';
 
 class ExportService {
-  /// 分享全部数据（纯JSON数组，可在"导入"中粘贴恢复）
-  static Future<void> shareJson() async {
+  /// 全部数据的 JSON 字符串（可复制/分享/导入恢复）
+  static Future<String> getJsonData() async {
     final transactions = await StorageService.getAllTransactions();
-
     if (transactions.isEmpty) {
-      throw Exception('暂无记录可导出');
+      throw Exception('暂无记录可分享');
     }
+    return jsonEncode(transactions.map((t) => t.toJson()).toList());
+  }
 
-    final jsonStr = jsonEncode(transactions.map((t) => t.toJson()).toList());
+  /// 复制数据到剪贴板（默认方式，对应"导入"的粘贴JSON）
+  static Future<void> copyJsonData() async {
+    await Clipboard.setData(ClipboardData(text: await getJsonData()));
+  }
+
+  /// 以文本形式分享 JSON 内容
+  static Future<void> shareJsonText() async {
+    await Share.share(await getJsonData(), subject: '卖菜记账数据');
+  }
+
+  /// 以 .json 文件形式分享（可通过"从文件导入"恢复）
+  static Future<void> shareJsonFile() async {
+    final jsonStr = await getJsonData();
     final directory = await getTemporaryDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final file = File('${directory.path}/卖菜记账_$timestamp.json');
